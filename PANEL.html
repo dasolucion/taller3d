@@ -3,364 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión & Cotizador Impresión 3D v2.1 (Supabase)</title>
+    <title>Sistema de Gestión</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        .active-tab { background-color: #0f172a; color: #38bdf8; border-left: 4px solid #38bdf8; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        .modal-backdrop { background-color: rgba(2, 6, 23, 0.85); backdrop-filter: blur(4px); }
-    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col md:flex-row antialiased">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-4 md:p-8">
 
-    <!-- Pantalla de Login / Autenticación -->
-    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-8 shadow-2xl">
-            <div class="flex justify-center mb-6">
-                <div class="bg-sky-500 text-slate-950 p-3 rounded-xl font-bold shadow-lg shadow-sky-500/20">
-                    <i class="fa-solid fa-cube text-3xl"></i>
+    <div class="max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold tracking-tight text-white"><i class="fa-solid fa-chart-line text-emerald-400 mr-2"></i> Panel de Gestión</h1>
+            <button onclick="fetchAllData()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition border border-slate-700">
+                <i class="fa-solid fa-rotate mr-1"></i> Actualizar Datos
+            </button>
+        </header>
+
+        <!-- Contenedor Principal (Ejemplo simplificado de secciones) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Sección de Ventas Rápida -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-white"><i class="fa-solid fa-cash-register text-emerald-400 mr-2"></i> Ventas</h2>
+                    <button onclick="venderDesdeCatalogo()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition">
+                        <i class="fa-solid fa-plus mr-1"></i> Nueva Venta
+                    </button>
+                </div>
+                <div id="ventas-container" class="space-y-3 text-sm text-slate-300">
+                    <!-- Los datos se cargarán aquí dinámicamente -->
                 </div>
             </div>
-            <h2 class="text-2xl font-bold text-white text-center mb-6">Taller 3D Pro</h2>
-            <form onsubmit="iniciarSesion(event)" class="space-y-5">
+        </div>
+    </div>
+
+    <!-- Modal de Venta -->
+    <div id="modal-venta" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-ven-title" class="text-base font-bold text-white">Registrar Venta</h3>
+                <button onclick="closeModal('modal-venta')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <input type="hidden" id="ven-edit-id">
+            <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Correo Electrónico</label>
-                    <input id="login-email" type="email" required placeholder="admin@taller3d.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-sky-500">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Cliente</label>
+                    <input type="text" id="ven-cliente" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-emerald-500" placeholder="Nombre del cliente">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Contraseña</label>
-                    <input id="login-password" type="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-sky-500">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs font-medium text-slate-400">Productos</label>
+                        <button type="button" onclick="agregarFilaProductoVenta()" class="text-xs text-emerald-400 hover:underline"><i class="fa-solid fa-plus mr-1"></i> Agregar otro</button>
+                    </div>
+                    <div id="ven-productos-container" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <!-- Filas de productos inyectadas por JS -->
+                    </div>
                 </div>
-                <div id="login-error" class="hidden text-xs text-red-400 text-center bg-red-950/30 p-2 rounded-lg border border-red-900/50"></div>
-                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-500 transition text-white font-bold py-3 rounded-xl shadow-lg shadow-sky-600/20">
-                    Iniciar Sesión
-                </button>
-            </form>
+                <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                    <span class="text-sm font-medium text-slate-300">Total:</span>
+                    <input type="text" id="ven-total" class="w-32 bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-emerald-400 font-bold text-right outline-none" readonly value="0.00">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeModal('modal-venta')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm">Cancelar</button>
+                <button onclick="guardarVenta()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Guardar Venta</button>
+            </div>
         </div>
     </div>
 
     <!-- Notificaciones Toast -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl hidden transition-all duration-300 z-50 text-sm"></div>
 
-    <!-- Sidebar / Navegación principal -->
-    <aside id="sidebar" class="hidden md:flex flex-col w-full md:w-64 bg-slate-900 border-r border-slate-800 flex-shrink-0 z-10">
-        <div class="p-4 hidden md:flex items-center space-x-3 border-b border-slate-800">
-            <div class="bg-sky-500 text-slate-950 p-2.5 rounded-xl font-bold shadow-lg shadow-sky-500/20"><i class="fa-solid fa-cube text-xl"></i></div>
-            <div><h1 class="font-bold text-white">Taller 3D Pro</h1></div>
-        </div>
-        <nav class="p-3 space-y-1 text-sm font-medium flex-1 overflow-y-auto">
-            <button onclick="showTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition active-tab"><i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Dashboard</span></button>
-            <!-- BOTÓN NUEVO DE PEDIDOS -->
-            <button onclick="showTab('pedidos')" id="nav-pedidos" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-bell w-5 text-center text-amber-400"></i><span class="text-amber-400 font-semibold">Pedidos Nuevos</span>
-            </button>
-            <button onclick="showTab('ventas')" id="nav-ventas" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition"><i class="fa-solid fa-receipt w-5 text-center"></i><span>Registro Ventas</span></button>
-            <button onclick="showTab('inventario')" id="nav-inventario" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition"><i class="fa-solid fa-boxes-stacked w-5 text-center"></i><span>Inventario</span></button>
-            <button onclick="showTab('catalogo')" id="nav-catalogo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition"><i class="fa-solid fa-book-open w-5 text-center"></i><span>Catálogo</span></button>
-        </nav>
-        <div class="p-3 border-t border-slate-800 space-y-2">
-            <button onclick="fetchAllData()" class="w-full bg-slate-800 text-xs py-2 rounded-lg text-slate-300 border border-slate-700">Sincronizar</button>
-            <button onclick="cerrarSesion()" class="w-full bg-red-950/40 text-xs py-2 rounded-lg text-red-400 border border-red-500/30 hover:bg-red-900/50 transition">Cerrar Sesión</button>
-        </div>
-    </aside>
-
-    <main class="flex-1 p-4 md:p-6 overflow-y-auto">
-        <!-- 1. DASHBOARD -->
-        <section id="sec-dashboard" class="space-y-6">
-            <h2 class="text-2xl font-bold text-white">Dashboard Ejecutivo</h2>
-            <!-- Componentes KPI... -->
-        </section>
-
-        <!-- SECCIÓN NUEVA: PEDIDOS -->
-        <section id="sec-pedidos" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Pedidos Web Recibidos</h2>
-                    <p class="text-sm text-slate-400">Pedidos ingresados desde la tienda online. Procesa a venta para descargar inventario.</p>
-                </div>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID / Fecha</th>
-                            <th class="p-3.5">Cliente</th>
-                            <th class="p-3.5">Productos</th>
-                            <th class="p-3.5">Total ($)</th>
-                            <th class="p-3.5">Estado</th>
-                            <th class="p-3.5 text-right">Procesar Venta</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-pedidos" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- SECCIÓN VENTAS -->
-        <section id="sec-ventas" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div><h2 class="text-2xl font-bold text-white">Registro de Ventas</h2></div>
-                <button onclick="openModal('modal-venta')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition"><i class="fa-solid fa-cart-plus"></i> Registrar Venta Directa</button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">Fecha</th>
-                            <th class="p-3.5">Cliente</th>
-                            <th class="p-3.5">Productos</th>
-                            <th class="p-3.5">Total ($)</th>
-                            <th class="p-3.5">Utilidad ($)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-ventas" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Secciones Inventario y Catálogo -->
-        <section id="sec-inventario" class="space-y-6 hidden"> <h2 class="text-2xl font-bold text-white">Inventario</h2> </section>
-        <section id="sec-catalogo" class="space-y-6 hidden"> <h2 class="text-2xl font-bold text-white">Catálogo</h2> </section>
-    </main>
-
-    <!-- Modal Venta Universal (Usado para ventas directas o procesar pedidos) -->
-    <div id="modal-venta" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 space-y-4 shadow-2xl">
-            <h3 id="modal-ven-title" class="text-lg font-bold text-white"><i class="fa-solid fa-cart-plus text-emerald-400"></i> Procesar Venta</h3>
-            
-            <input type="hidden" id="ven-edit-id" value=""> 
-            <input type="hidden" id="ven-costo-oculto" value="0">
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Nombre del Cliente</label>
-                    <input id="ven-cliente" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Resumen Productos</label>
-                    <div id="ven-productos-container" class="space-y-2 text-xs text-slate-300 p-2 bg-slate-950 border border-slate-800 rounded-lg">
-                        <!-- Renderizado por JS -->
-                    </div>
-                </div>
-                <div class="pt-4 border-t border-slate-800 flex justify-between items-center">
-                    <span class="text-sm font-semibold text-slate-300">Total Venta ($):</span>
-                    <input id="ven-total" type="number" step="0.01" class="w-32 bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-right font-bold text-emerald-400 outline-none">
-                </div>
-            </div>
-            <div class="flex justify-end space-x-2 pt-4">
-                <button onclick="closeModal('modal-venta')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 transition text-slate-300 text-sm rounded-lg">Cancelar</button>
-                <button onclick="guardarVentaDesdeModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 transition text-white text-sm font-bold rounded-lg shadow-lg shadow-emerald-600/20">Confirmar Venta e Inventario</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Script de lógica de la aplicación -->
     <script>
-        const SUPABASE_URL = 'https://aryhrfouqenwvwvtslez.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyeWhyZm91cWVud3Z3dnRzbGV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNzI2NDksImV4cCI6MjEwMjc0ODY0OX0.zNXRD2UbuBv1hHSi-MkmYQG3XopKDrlang2MOQntHmc';            
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Configuración de Supabase (Reemplaza con tus credenciales)
+        const SUPABASE_URL = 'TU_SUPABASE_URL';
+        const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let appData = {
-            inventario: [], catalogo: [], ventas: [], pedidos: [] 
+            catalogo: [],
+            ventas: [],
+            muestras: [],
+            prospectos: [],
+            tareas: []
         };
-        let ventaActualItemsTemp = []; 
 
-        // ======================= LÓGICA DE AUTENTICACIÓN =======================
-        async function iniciarSesion(event) {
-            event.preventDefault(); // Evita que la página se recargue
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('login-error');
-
-            try {
-                // Autenticación con Supabase Auth
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: pass
-                });
-
-                // Acceso de respaldo por si no tienes usuarios configurados en Auth de Supabase (Quítalo en producción)
-                if (error && !(email === 'admin@taller3d.com' && pass === 'admin123')) {
-                    errorDiv.textContent = 'Credenciales incorrectas.';
-                    errorDiv.classList.remove('hidden');
-                    return;
-                }
-
-                // Ocultar login y cargar datos
-                errorDiv.classList.add('hidden');
-                document.getElementById('login-screen').classList.add('hidden');
-                fetchAllData(); 
-            } catch (err) {
-                console.error("Error en login:", err);
-            }
+        // Utilidades de modales y alertas
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
         }
 
-        async function cerrarSesion() {
-            await supabaseClient.auth.signOut();
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('login-email').value = '';
-            document.getElementById('login-password').value = '';
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
         }
 
-        // ======================= CARGA DE DATOS =======================
+        function showToast(mensaje, tipo = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = mensaje;
+            toast.className = `fixed bottom-5 right-5 px-4 py-3 rounded-xl shadow-2xl z-50 text-sm border ${tipo === 'error' ? 'bg-red-950 border-red-800 text-red-200' : 'bg-slate-800 border-slate-700 text-white'}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
         async function fetchAllData() {
-            try {
-                const [inv, cat, ven, ped] = await Promise.all([
-                    supabaseClient.from('inventario').select('*'),
-                    supabaseClient.from('catalogo').select('*'),
-                    supabaseClient.from('ventas').select('*'),
-                    supabaseClient.from('pedidos').select('*')
-                ]);
-
-                if (inv.data) appData.inventario = inv.data;
-                if (cat.data) appData.catalogo = cat.data;
-                if (ven.data) appData.ventas = ven.data;
-                if (ped.data) appData.pedidos = ped.data;
-
-                renderPedidos();
-                renderVentas();
-            } catch (err) {
-                console.error(err);
-            }
+            // Función simulada para refrescar datos desde Supabase
+            showToast('Actualizando datos...');
         }
 
-        // ======================= INTERFAZ Y NAVEGACIÓN =======================
-        function showTab(tabId) {
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('nav > button').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabId}`).classList.add('active-tab');
-        }
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        // ======================= LÓGICA DE PEDIDOS Y CONVERSIÓN A VENTAS =======================
-        function renderPedidos() {
-            const tbody = document.getElementById('tabla-pedidos');
-            if (!tbody) return;
-            if (appData.pedidos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500 text-xs">No hay pedidos registrados</td></tr>';
-                return;
-            }
-
-            const lista = appData.pedidos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            
-            tbody.innerHTML = lista.map(p => {
-                const itemsStr = Array.isArray(p.items) ? p.items.map(i => `${i.cantidad}x ${i.producto} (${i.color})`).join('<br>') : 'N/A';
-                const estadoClase = p.estado === 'Pendiente' ? 'text-amber-400 bg-amber-500/20' : 'text-emerald-400 bg-emerald-500/20';
-                
-                const btnAccion = p.estado === 'Pendiente'
-                    ? `<button onclick="abrirConversionVenta(${p.id})" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 p-2 rounded-xl border border-emerald-500/30 transition shadow-lg shadow-emerald-500/10" title="Procesar y pasar a Ventas">
-                        <i class="fa-solid fa-cart-arrow-down text-lg"></i>
-                       </button>`
-                    : `<span class="text-xs text-emerald-600"><i class="fa-solid fa-check"></i> Listo</span>`;
-
-                return `
-                    <tr class="hover:bg-slate-800/50 transition border-b border-slate-800/50 last:border-0">
-                        <td class="p-3.5 text-xs text-slate-400">#${p.id}<br>${new Date(p.fecha).toLocaleDateString()}</td>
-                        <td class="p-3.5 font-bold text-white">${p.cliente}</td>
-                        <td class="p-3.5 text-xs text-slate-400">${itemsStr}<br><i class="text-[10px] text-slate-500">${p.notas || ''}</i></td>
-                        <td class="p-3.5 font-bold text-emerald-400">$${parseFloat(p.total).toFixed(2)}</td>
-                        <td class="p-3.5"><span class="px-2 py-1 rounded text-[10px] font-bold ${estadoClase}">${p.estado}</span></td>
-                        <td class="p-3.5 text-right">${btnAccion}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function abrirConversionVenta(pedidoId) {
-            const pedido = appData.pedidos.find(p => p.id === pedidoId);
-            if (!pedido) return;
-
-            document.getElementById('modal-venta').classList.remove('hidden');
-            document.getElementById('ven-edit-id').value = 'PROCESAR_PEDIDO_' + pedidoId;
-            document.getElementById('ven-cliente').value = pedido.cliente;
-            document.getElementById('ven-total').value = parseFloat(pedido.total).toFixed(2);
-            document.getElementById('ven-costo-oculto').value = parseFloat(pedido.costo).toFixed(2);
-            
-            ventaActualItemsTemp = pedido.items;
-            
+        // ==================== GESTIÓN DE VENTAS Y PRODUCTOS ====================
+        function agregarFilaProductoVenta(prodId = '', cant = 1, initialPrice = 0) {
             const container = document.getElementById('ven-productos-container');
-            container.innerHTML = pedido.items.map(i => `
-                <div class="flex justify-between border-b border-slate-800/50 pb-1 mb-1 last:border-0 last:mb-0 last:pb-0">
-                    <span>${i.cantidad}x ${i.producto} <span class="text-[10px] text-slate-400">(${i.color})</span></span>
-                    <span class="text-emerald-400">$${parseFloat(i.precio).toFixed(2)} c/u</span>
+            const rowId = `ven-row-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            
+            let optionsHtml = '<option value="">Seleccionar producto...</option>';
+            appData.catalogo.forEach(c => {
+                const selected = c.id === prodId ? 'selected' : '';
+                optionsHtml += `<option value="${c.id}" ${selected}>${c.producto} ($${c.precio})</option>`;
+            });
+
+            if (!initialPrice && prodId) {
+                const prod = appData.catalogo.find(c => c.id === prodId);
+                if (prod) initialPrice = prod.precio;
+            }
+
+            const rowHtml = `
+                <div id="${rowId}" class="ven-prod-row flex items-center space-x-2 bg-slate-950/50 p-2 rounded-lg border border-slate-800">
+                    <select class="ven-prod-select flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-sky-500" onchange="actualizarPrecioFilaVenta(this)">
+                        ${optionsHtml}
+                    </select>
+                    <input type="number" class="ven-prod-cant w-16 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white outline-none focus:border-sky-500" value="${cant}" min="1" oninput="calcularTotalVenta()">
+                    <input type="number" step="0.01" class="ven-prod-precio w-24 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-emerald-400 outline-none focus:border-emerald-500" value="${initialPrice}" oninput="calcularTotalVenta()">
+                    <button type="button" onclick="eliminarFilaProductoVenta('${rowId}')" class="text-slate-500 hover:text-red-400 p-1.5 text-xs"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-            `).join('');
+            `;
+            container.insertAdjacentHTML('beforeend', rowHtml);
+            calcularTotalVenta();
         }
 
-        async function guardarVentaDesdeModal() {
-            const editId = document.getElementById('ven-edit-id').value;
+        function actualizarPrecioFilaVenta(selectEl) {
+            const row = selectEl.closest('.ven-prod-row');
+            const prodId = selectEl.value;
+            const prod = appData.catalogo.find(c => c.id === prodId);
+            if (prod) {
+                row.querySelector('.ven-prod-precio').value = prod.precio;
+            }
+            calcularTotalVenta();
+        }
+
+        function eliminarFilaProductoVenta(rowId) {
+            const row = document.getElementById(rowId);
+            if (row && document.querySelectorAll('.ven-prod-row').length > 1) {
+                row.remove();
+                calcularTotalVenta();
+            }
+        }
+
+        function calcularTotalVenta() {
+            let total = 0;
+            document.querySelectorAll('.ven-prod-row').forEach(row => {
+                const cant = parseFloat(row.querySelector('.ven-prod-cant').value) || 0;
+                const precio = parseFloat(row.querySelector('.ven-prod-precio').value) || 0;
+                total += cant * precio;
+            });
+            document.getElementById('ven-total').value = total.toFixed(2);
+        }
+
+        function venderDesdeCatalogo(prodId = '') {
+            document.getElementById('ven-edit-id').value = "";
+            document.getElementById('modal-ven-title').innerHTML = '<i class="fa-solid fa-cart-plus text-emerald-400 mr-2"></i> Registrar Nueva Venta';
+            document.getElementById('ven-cliente').value = '';
+            document.getElementById('ven-productos-container').innerHTML = '';
+            agregarFilaProductoVenta(prodId, 1);
+            openModal('modal-venta');
+        }
+
+        function editarVenta(id) {
+            const v = appData.ventas.find(x => x.id === id);
+            if (!v) return;
+            document.getElementById('ven-edit-id').value = v.id;
+            document.getElementById('modal-ven-title').innerHTML = '<i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Editar Venta';
+            document.getElementById('ven-cliente').value = v.cliente;
+            
+            document.getElementById('ven-productos-container').innerHTML = '';
+            if (v.items && v.items.length > 0) {
+                v.items.forEach(i => {
+                    const prod = appData.catalogo.find(c => c.producto === i.producto);
+                    const prodId = prod ? prod.id : null;
+                    agregarFilaProductoVenta(prodId, i.cant, i.precioUnit);
+                });
+            } else {
+                agregarFilaProductoVenta();
+            }
+            openModal('modal-venta');
+        }
+
+        async function guardarVenta() {
+            const id = document.getElementById('ven-edit-id').value || `V-${Date.now()}`;
             const cliente = document.getElementById('ven-cliente').value;
-            const total = parseFloat(document.getElementById('ven-total').value);
-            const costo = parseFloat(document.getElementById('ven-costo-oculto').value);
+            const esNuevaVenta = !document.getElementById('ven-edit-id').value;
+            
+            if (!cliente) return alert('Ingresa el nombre del cliente');
 
-            try {
-                const { data: ventaData, error: errVenta } = await supabaseClient.from('ventas').insert([{
-                    cliente: cliente,
-                    items: ventaActualItemsTemp,
-                    total: total,
-                    costo: costo,
-                    fecha: new Date().toISOString()
-                }]);
+            let items = [];
+            let total = 0;
+            let costoTotalVenta = 0;
+
+            document.querySelectorAll('.ven-prod-row').forEach(row => {
+                const select = row.querySelector('.ven-prod-select');
+                const prodId = select.value;
+                const prod = appData.catalogo.find(c => c.id === prodId);
+                const nombreProd = prod ? prod.producto : select.options[select.selectedIndex].text.split(' ($')[0];
+                const costoUnit = prod ? prod.costo : 0;
                 
-                if (errVenta) throw errVenta;
+                const cant = parseFloat(row.querySelector('.ven-prod-cant').value) || 0;
+                const precio = parseFloat(row.querySelector('.ven-prod-precio').value) || 0;
+                
+                items.push({ producto: nombreProd, cant: cant, precioUnit: precio });
+                total += cant * precio;
+                costoTotalVenta += cant * costoUnit;
+            });
 
-                if (editId.startsWith('PROCESAR_PEDIDO_')) {
-                    const pedidoId = editId.replace('PROCESAR_PEDIDO_', '');
-                    await supabaseClient.from('pedidos').update({ estado: 'Procesado' }).eq('id', parseInt(pedidoId));
+            if (esNuevaVenta && typeof procesarConsumoMaterial === 'function') {
+                for (const item of items) {
+                    await procesarConsumoMaterial(item.producto, item.cant);
                 }
+            }
 
-                for (let item of ventaActualItemsTemp) {
-                    const productoCatalogo = appData.catalogo.find(c => c.producto === item.producto);
-                    if (productoCatalogo && productoCatalogo.material_info) {
-                        console.log(`Inventario a descontar para ${item.producto}`);
-                    }
-                }
+            const payload = {
+                id,
+                fecha: new Date().toISOString().split('T')[0],
+                cliente,
+                items,
+                total,
+                costo: costoTotalVenta
+            };
 
+            const { error } = await supabaseClient.from('ventas').upsert(payload);
+            if (!error) {
+                showToast('Venta registrada con éxito');
                 closeModal('modal-venta');
                 await fetchAllData();
-                showTab('ventas'); 
-                
-            } catch (err) {
-                console.error(err);
-                alert("Error al procesar la venta en la nube.");
-            }
-        }
-
-        function renderVentas() {
-            const tbody = document.getElementById('tabla-ventas');
-            if(!tbody) return;
-            tbody.innerHTML = appData.ventas.map(v => {
-                const util = v.total - v.costo;
-                return `
-                    <tr class="hover:bg-slate-800/50 transition border-b border-slate-800/50 last:border-0">
-                        <td class="p-3.5 text-xs text-slate-400">${new Date(v.fecha).toLocaleDateString()}</td>
-                        <td class="p-3.5 font-medium text-white">${v.cliente}</td>
-                        <td class="p-3.5 text-xs text-slate-400">${v.items.length} tipo(s)</td>
-                        <td class="p-3.5 font-bold text-amber-400">$${parseFloat(v.total).toFixed(2)}</td>
-                        <td class="p-3.5 font-bold text-emerald-400">$${util.toFixed(2)}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // ======================= INICIALIZACIÓN =======================
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Verifica si el usuario ya tiene una sesión activa en Supabase
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                document.getElementById('login-screen').classList.add('hidden');
-                fetchAllData();
             } else {
-                document.getElementById('login-screen').classList.remove('hidden');
+                showToast('Error al registrar venta', 'error');
             }
-        });
+        }
+
+        async function eliminarVenta(id) {
+            if (confirm('¿Eliminar esta venta?')) {
+                const { error } = await supabaseClient.from('ventas').delete().eq('id', id);
+                if (!error) {
+                    showToast('Venta eliminada');
+                    await fetchAllData();
+                }
+            }
+        }
     </script>
 </body>
 </html>
