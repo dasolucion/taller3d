@@ -1312,28 +1312,51 @@
         }
 
         // ==================== SECCIÓN DE PEDIDOS ====================
-        function renderPedidos() {
-            const tbody = document.getElementById('tabla-pedidos');
-            tbody.innerHTML = appData.pedidos.map((p) => {
-                const util = p.total - p.costo;
-                const resumenProds = p.items ? p.items.map(i => `${i.producto} (x${i.cant} @ $${(i.precioUnit || 0).toFixed(2)})`).join(', ') : '';
-                return `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="p-3.5 font-mono text-slate-400 text-xs">${p.id}</td>
-                        <td class="p-3.5 text-slate-400 text-xs">${p.fecha}</td>
-                        <td class="p-3.5 font-semibold text-white">${p.cliente}</td>
-                        <td class="p-3.5 text-slate-300 text-xs">${resumenProds}</td>
-                        <td class="p-3.5 text-sky-400 font-bold">$${p.total.toFixed(2)}</td>
-                        <td class="p-3.5 text-emerald-400 font-bold">$${util.toFixed(2)}</td>
-                        <td class="p-3.5 text-right space-x-1">
-                            <button onclick="procesarPedidoAVenta('${p.id}')" title="Procesar a Venta (Descuenta Inventario)" class="text-emerald-400 hover:text-emerald-300 p-1 font-bold"><i class="fa-solid fa-check-double"></i></button>
-                            <button onclick="editarPedido('${p.id}')" title="Editar Pedido" class="text-sky-400 hover:text-sky-300 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="eliminarPedido('${p.id}')" title="Eliminar Pedido" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+// ==================== SECCIÓN DE PEDIDOS ====================
+function renderPedidos() {
+    const tbody = document.getElementById('tabla-pedidos');
+    
+    tbody.innerHTML = appData.pedidos.map((p) => {
+        const util = (p.total || 0) - (p.costo || 0);
+        
+        // 1. Corrección del formato de fecha a Día/Mes/Año
+        let fechaFormateada = p.fecha;
+        if (p.fecha && p.fecha.includes('-')) {
+            const [year, month, day] = p.fecha.split('-');
+            fechaFormateada = `${day}/${month}/${year}`;
         }
+
+        // 2. Corrección del "xundefined @ $0.00"
+        // Validamos si items viene como string (JSON) desde Supabase o ya es un Array
+        const itemsArray = typeof p.items === 'string' ? JSON.parse(p.items) : (p.items || []);
+        
+        const resumenProds = itemsArray.map(i => {
+            // Buscamos propiedades alternativas por si difieren en la Base de Datos
+            const cantidad = i.cant || i.cantidad || 1; 
+            const precio = parseFloat(i.precioUnit || i.precio || 0);
+            const nombre = i.producto || 'Producto Desconocido';
+            
+            return `${nombre} (x${cantidad} @ $${precio.toFixed(2)})`;
+        }).join(', ');
+
+        // 3. HTML seguro con los IDs correctamente vinculados a los botones de acción
+        return `
+            <tr class="hover:bg-slate-900/50">
+                <td class="p-3.5 font-mono text-slate-400 text-xs">${p.id}</td>
+                <td class="p-3.5 text-slate-400 text-xs">${fechaFormateada}</td>
+                <td class="p-3.5 font-semibold text-white">${p.cliente || 'Sin nombre'}</td>
+                <td class="p-3.5 text-slate-300 text-xs">${resumenProds}</td>
+                <td class="p-3.5 text-sky-400 font-bold">$${(p.total || 0).toFixed(2)}</td>
+                <td class="p-3.5 text-emerald-400 font-bold">$${util.toFixed(2)}</td>
+                <td class="p-3.5 text-right space-x-1">
+                    <button onclick="procesarPedidoAVenta('${p.id}')" title="Procesar a Venta (Descuenta Inventario)" class="text-emerald-400 hover:text-emerald-300 p-1 font-bold"><i class="fa-solid fa-check-double"></i></button>
+                    <button onclick="editarPedido('${p.id}')" title="Editar Pedido" class="text-sky-400 hover:text-sky-300 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button onclick="eliminarPedido('${p.id}')" title="Eliminar Pedido" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
 
         function initModalPedido() {
             document.getElementById('ped-productos-container').innerHTML = '';
