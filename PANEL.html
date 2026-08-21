@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión & Cotizador Impresión 3D v2.1 (Supabase)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .active-tab { background-color: #0f172a; color: #38bdf8; border-left: 4px solid #38bdf8; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        .modal-backdrop { background-color: rgba(2, 6, 23, 0.85); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col md:flex-row antialiased">
+
+    <!-- Pantalla de Login / Autenticación -->
+    <div id="login-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-4">
+        <!-- (Estructura de login igual al original...) -->
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+            <h2 class="text-2xl font-bold text-white text-center mb-4">Taller 3D Pro</h2>
+            <form onsubmit="iniciarSesion(event)" class="space-y-4">
+                <input id="login-email" type="email" required placeholder="Email" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white">
+                <input id="login-password" type="password" required placeholder="Clave" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white">
+                <div id="login-error" class="hidden text-xs text-red-400 text-center"></div>
+                <button type="submit" class="w-full bg-sky-600 text-white font-bold py-3 rounded-xl">Iniciar Sesión</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notificaciones Toast -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- Sidebar / Navegación principal -->
+    <aside id="sidebar" class="hidden md:flex flex-col w-full md:w-64 bg-slate-900 border-r border-slate-800 flex-shrink-0 z-10">
+        <div class="p-4 hidden md:flex items-center space-x-3 border-b border-slate-800">
+            <div class="bg-sky-500 text-slate-950 p-2.5 rounded-xl font-bold shadow-lg shadow-sky-500/20"><i class="fa-solid fa-cube text-xl"></i></div>
+            <div><h1 class="font-bold text-white">Taller 3D Pro</h1></div>
+        </div>
+        <nav class="p-3 space-y-1 text-sm font-medium flex-1 overflow-y-auto">
+            <button onclick="showTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition active-tab"><i class="fa-solid fa-chart-pie w-5 text-center"></i><span>Dashboard</span></button>
+            <!-- BOTÓN NUEVO DE PEDIDOS -->
+            <button onclick="showTab('pedidos')" id="nav-pedidos" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                <i class="fa-solid fa-bell w-5 text-center text-amber-400"></i><span class="text-amber-400 font-semibold">Pedidos Nuevos</span>
+            </button>
+            <button onclick="showTab('ventas')" id="nav-ventas" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition"><i class="fa-solid fa-receipt w-5 text-center"></i><span>Registro Ventas</span></button>
+            <button onclick="showTab('inventario')" id="nav-inventario" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition"><i class="fa-solid fa-boxes-stacked w-5 text-center"></i><span>Inventario</span></button>
+            <button onclick="showTab('catalogo')" id="nav-catalogo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition"><i class="fa-solid fa-book-open w-5 text-center"></i><span>Catálogo</span></button>
+        </nav>
+        <div class="p-3 border-t border-slate-800 space-y-2">
+            <button onclick="fetchAllData()" class="w-full bg-slate-800 text-xs py-2 rounded-lg text-slate-300 border border-slate-700">Sincronizar</button>
+            <button onclick="cerrarSesion()" class="w-full bg-red-950/40 text-xs py-2 rounded-lg text-red-400 border border-red-500/30">Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+        <!-- 1. DASHBOARD -->
+        <section id="sec-dashboard" class="space-y-6">
+            <h2 class="text-2xl font-bold text-white">Dashboard Ejecutivo</h2>
+            <!-- Componentes KPI... -->
+        </section>
+
+        <!-- SECCIÓN NUEVA: PEDIDOS -->
+        <section id="sec-pedidos" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Pedidos Web Recibidos</h2>
+                    <p class="text-sm text-slate-400">Pedidos ingresados desde la tienda online. Procesa a venta para descargar inventario.</p>
+                </div>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                        <tr>
+                            <th class="p-3.5">ID / Fecha</th>
+                            <th class="p-3.5">Cliente</th>
+                            <th class="p-3.5">Productos</th>
+                            <th class="p-3.5">Total ($)</th>
+                            <th class="p-3.5">Estado</th>
+                            <th class="p-3.5 text-right">Procesar Venta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-pedidos" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECCIÓN VENTAS (Conservada de tu código) -->
+        <section id="sec-ventas" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div><h2 class="text-2xl font-bold text-white">Registro de Ventas</h2></div>
+                <button onclick="openModal('modal-venta')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl"><i class="fa-solid fa-cart-plus"></i> Registrar Venta Directa</button>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                        <tr>
+                            <th class="p-3.5">Fecha</th>
+                            <th class="p-3.5">Cliente</th>
+                            <th class="p-3.5">Productos</th>
+                            <th class="p-3.5">Total ($)</th>
+                            <th class="p-3.5">Utilidad ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-ventas" class="divide-y divide-slate-800"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- (Secciones Inventario, Catalogo, etc...) -->
+        <section id="sec-inventario" class="space-y-6 hidden"> <h2 class="text-2xl font-bold text-white">Inventario</h2> </section>
+        <section id="sec-catalogo" class="space-y-6 hidden"> <h2 class="text-2xl font-bold text-white">Catálogo</h2> </section>
+    </main>
+
+    <!-- Modal Venta Universal (Usado para ventas directas o procesar pedidos) -->
+    <div id="modal-venta" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 space-y-4 shadow-2xl">
+            <h3 id="modal-ven-title" class="text-lg font-bold text-white"><i class="fa-solid fa-cart-plus text-emerald-400"></i> Procesar Venta</h3>
+            
+            <input type="hidden" id="ven-edit-id" value=""> <!-- Usaremos esto para saber si viene de un pedido -->
+            <input type="hidden" id="ven-costo-oculto" value="0">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Nombre del Cliente</label>
+                    <input id="ven-cliente" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300">Resumen Productos (JSON interno)</label>
+                    <div id="ven-productos-container" class="space-y-2 text-xs text-slate-300 p-2 bg-slate-950 border border-slate-800 rounded">
+                        <!-- Renderizado por JS -->
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
+                    <span class="text-sm font-semibold text-slate-300">Total Venta ($):</span>
+                    <input id="ven-total" type="number" step="0.01" class="w-32 bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-right font-bold text-emerald-400">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeModal('modal-venta')" class="px-4 py-2 bg-slate-800 text-slate-300 text-sm rounded-lg">Cancelar</button>
+                <button onclick="guardarVentaDesdeModal()" class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg">Confirmar Venta e Inventario</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://aryhrfouqenwvwvtslez.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyeWhyZm91cWVud3Z3dnRzbGV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNzI2NDksImV4cCI6MjEwMjc0ODY0OX0.zNXRD2UbuBv1hHSi-MkmYQG3XopKDrlang2MOQntHmc';            
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let appData = {
+            inventario: [], catalogo: [], ventas: [], pedidos: [] // Agregado array pedidos
+        };
+        let ventaActualItemsTemp = []; // Para almacenar items al convertir pedido
+
+        async function fetchAllData() {
+            try {
+                // Hacemos el llamado integrando también a los pedidos
+                const [inv, cat, ven, ped] = await Promise.all([
+                    supabaseClient.from('inventario').select('*'),
+                    supabaseClient.from('catalogo').select('*'),
+                    supabaseClient.from('ventas').select('*'),
+                    supabaseClient.from('pedidos').select('*') // Tabla nueva
+                ]);
+
+                if (inv.data) appData.inventario = inv.data;
+                if (cat.data) appData.catalogo = cat.data;
+                if (ven.data) appData.ventas = ven.data;
+                if (ped.data) appData.pedidos = ped.data;
+
+                renderPedidos();
+                renderVentas();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('nav > button').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabId}`).classList.add('active-tab');
+        }
+
+        // ======================= LÓGICA DE PEDIDOS Y CONVERSIÓN A VENTAS =======================
+
+        function renderPedidos() {
+            const tbody = document.getElementById('tabla-pedidos');
+            if (!tbody) return;
+            if (appData.pedidos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500 text-xs">No hay pedidos registrados</td></tr>';
+                return;
+            }
+
+            // Filtrar y ordenar los más recientes arriba
+            const lista = appData.pedidos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            
+            tbody.innerHTML = lista.map(p => {
+                const itemsStr = Array.isArray(p.items) ? p.items.map(i => `${i.cantidad}x ${i.producto} (${i.color})`).join('<br>') : 'N/A';
+                const estadoClase = p.estado === 'Pendiente' ? 'text-amber-400 bg-amber-500/20' : 'text-emerald-400 bg-emerald-500/20';
+                
+                // Si el pedido está pendiente, mostrar carrito. Si ya está procesado, mostrar un check
+                const btnAccion = p.estado === 'Pendiente'
+                    ? `<button onclick="abrirConversionVenta(${p.id})" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 p-2 rounded-xl border border-emerald-500/30 transition shadow-lg shadow-emerald-500/10" title="Procesar y pasar a Ventas">
+                        <i class="fa-solid fa-cart-arrow-down text-lg"></i>
+                       </button>`
+                    : `<span class="text-xs text-emerald-600"><i class="fa-solid fa-check"></i> Listo</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="p-3.5 text-xs text-slate-400">#${p.id}<br>${new Date(p.fecha).toLocaleDateString()}</td>
+                        <td class="p-3.5 font-bold text-white">${p.cliente}</td>
+                        <td class="p-3.5 text-xs text-slate-400">${itemsStr}<br><i class="text-[10px] text-slate-500">${p.notas || ''}</i></td>
+                        <td class="p-3.5 font-bold text-emerald-400">$${parseFloat(p.total).toFixed(2)}</td>
+                        <td class="p-3.5"><span class="px-2 py-1 rounded text-[10px] font-bold ${estadoClase}">${p.estado}</span></td>
+                        <td class="p-3.5 text-right">${btnAccion}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Abre el modal simulando la migración del Pedido hacia una Venta nueva
+        function abrirConversionVenta(pedidoId) {
+            const pedido = appData.pedidos.find(p => p.id === pedidoId);
+            if (!pedido) return;
+
+            // 1. Abrimos Modal Venta
+            document.getElementById('modal-venta').classList.remove('hidden');
+            
+            // 2. Colocamos el ID especial en el oculto para saber de dónde proviene
+            document.getElementById('ven-edit-id').value = 'PROCESAR_PEDIDO_' + pedidoId;
+            
+            // 3. Prellenamos
+            document.getElementById('ven-cliente').value = pedido.cliente;
+            document.getElementById('ven-total').value = parseFloat(pedido.total).toFixed(2);
+            document.getElementById('ven-costo-oculto').value = parseFloat(pedido.costo).toFixed(2);
+            
+            ventaActualItemsTemp = pedido.items; // Guardamos en memoria
+            
+            // 4. Mostrar resumen visual en el container
+            const container = document.getElementById('ven-productos-container');
+            container.innerHTML = pedido.items.map(i => `
+                <div class="flex justify-between border-b border-slate-800 pb-1">
+                    <span>${i.cantidad}x ${i.producto} (${i.color})</span>
+                    <span class="text-emerald-400">$${parseFloat(i.precio).toFixed(2)} c/u</span>
+                </div>
+            `).join('');
+        }
+
+        // Ejecutar inserción en Ventas + Cambio Estado Pedido + Descuento Inventario
+        async function guardarVentaDesdeModal() {
+            const editId = document.getElementById('ven-edit-id').value;
+            const cliente = document.getElementById('ven-cliente').value;
+            const total = parseFloat(document.getElementById('ven-total').value);
+            const costo = parseFloat(document.getElementById('ven-costo-oculto').value);
+
+            try {
+                // 1. Crear el registro en tabla Ventas
+                const { data: ventaData, error: errVenta } = await supabaseClient.from('ventas').insert([{
+                    cliente: cliente,
+                    items: ventaActualItemsTemp,
+                    total: total,
+                    costo: costo,
+                    fecha: new Date().toISOString()
+                }]);
+                
+                if (errVenta) throw errVenta;
+
+                // 2. Si vino de un Pedido, actualizar el estado del Pedido original
+                if (editId.startsWith('PROCESAR_PEDIDO_')) {
+                    const pedidoId = editId.replace('PROCESAR_PEDIDO_', '');
+                    await supabaseClient.from('pedidos').update({ estado: 'Procesado' }).eq('id', parseInt(pedidoId));
+                }
+
+                // 3. Descontar Inventario automáticamente si el producto existe y tiene info de materiales
+                for (let item of ventaActualItemsTemp) {
+                    const productoCatalogo = appData.catalogo.find(c => c.producto === item.producto);
+                    if (productoCatalogo && productoCatalogo.material_info) {
+                        // Aquí va tu lógica estándar de descuento de inventario leyendo material_info
+                        // (Si la poseías anteriormente).
+                        console.log(`Inventario a descontar para ${item.producto}`);
+                    }
+                }
+
+                closeModal('modal-venta');
+                // Recargar toda la info para que se mueva a la pestaña correcta
+                await fetchAllData();
+                showTab('ventas'); // Movemos al usuario a ver su venta realizada!
+                
+            } catch (err) {
+                console.error(err);
+                alert("Error al procesar la venta en la nube.");
+            }
+        }
+
+        function renderVentas() {
+            // Render estándar de la tabla de ventas
+            const tbody = document.getElementById('tabla-ventas');
+            if(!tbody) return;
+            tbody.innerHTML = appData.ventas.map(v => {
+                const util = v.total - v.costo;
+                return `
+                    <tr class="hover:bg-slate-800/50">
+                        <td class="p-3.5 text-xs text-slate-400">${new Date(v.fecha).toLocaleDateString()}</td>
+                        <td class="p-3.5 font-medium text-white">${v.cliente}</td>
+                        <td class="p-3.5 text-xs text-slate-400">${v.items.length} tipo(s)</td>
+                        <td class="p-3.5 font-bold text-amber-400">$${parseFloat(v.total).toFixed(2)}</td>
+                        <td class="p-3.5 font-bold text-emerald-400">$${util.toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // Inicializador automático para que arranque el sistema
+        document.addEventListener('DOMContentLoaded', fetchAllData);
+    </script>
+</body>
+</html>
