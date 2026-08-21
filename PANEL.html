@@ -202,7 +202,6 @@
 
         <!-- COTIZADOR RÁPIDO -->
         <section id="sec-calculadora" class="space-y-6 hidden">
-            <!-- (El HTML de la Calculadora se mantiene intacto) -->
             <div>
                 <h2 class="text-2xl font-bold text-white">Calculadora & Cotizador Rápido</h2>
                 <p class="text-sm text-slate-400">Calcula costos exactos basados en tu inventario de la nube</p>
@@ -292,7 +291,6 @@
 
         <!-- INVENTARIO -->
         <section id="sec-inventario" class="space-y-6 hidden">
-            <!-- (El HTML del Inventario se mantiene intacto) -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 class="text-2xl font-bold text-white">Inventario de Materiales</h2>
@@ -400,7 +398,7 @@
                     <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
                         <tr>
                             <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Fecha</th>
+                            <th class="p-3.5">Fecha (Día/Mes/Año)</th>
                             <th class="p-3.5">Cliente</th>
                             <th class="p-3.5">Productos</th>
                             <th class="p-3.5">Total ($)</th>
@@ -429,7 +427,7 @@
                     <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
                         <tr>
                             <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Fecha</th>
+                            <th class="p-3.5">Fecha (Día/Mes/Año)</th>
                             <th class="p-3.5">Cliente</th>
                             <th class="p-3.5">Productos</th>
                             <th class="p-3.5">Total ($)</th>
@@ -908,11 +906,18 @@
         let chartRentabilidadInstance = null;
         let currentUserSession = null;
 
+        // Ayudante esencial para evitar problemas de tipos de base de datos
+        // Si el ID es numérico en BD pero pasamos texto "1", Supabase/Postgres lo rechaza
+        function parseId(id) {
+            if (typeof id === 'number') return id;
+            if (typeof id === 'string' && id.trim() !== '' && !isNaN(id)) return Number(id);
+            return id;
+        }
+
         // ==================== CONTROL DE SESIÓN Y AUTENTICACIÓN ====================
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
 
-            // Escuchar cambios de sesión en Supabase
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (session) {
                     currentUserSession = session;
@@ -969,32 +974,28 @@
             if (inactivityTimer) clearTimeout(inactivityTimer);
             await supabaseClient.auth.signOut();
             document.getElementById('login-screen').classList.remove('hidden');
-            if (razon) {
-                showToast(razon, 'error');
-            } else {
-                showToast('Sesión cerrada correctamente');
-            }
+            if (razon) showToast(razon, 'error');
+            else showToast('Sesión cerrada correctamente');
         }
 
         // ==================== CONTROL DE INACTIVIDAD (5 MINUTOS) ====================
         let inactivityTimer = null;
-        const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutos en milisegundos
+        const INACTIVITY_LIMIT = 5 * 60 * 1000;
 
         function resetInactivityTimer() {
             if (inactivityTimer) clearTimeout(inactivityTimer);
             if (currentUserSession) {
                 inactivityTimer = setTimeout(() => {
-                    cerrarSesion('Sesión cerrada automáticamente por 5 min de inactividad');
+                    cerrarSesion('Sesión cerrada automáticamente por inactividad');
                 }, INACTIVITY_LIMIT);
             }
         }
 
-        // Monitorear actividad del usuario
         ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
             window.addEventListener(evt, resetInactivityTimer, true);
         });
 
-        // Carga global de datos desde Supabase
+        // ==================== CARGA DE DATOS ====================
         async function fetchAllData() {
             if (!currentUserSession) return;
             try {
@@ -1037,7 +1038,6 @@
                     enTienda: c.en_tienda ?? false
                 }));
 
-                // Parseando items de forma segura para evitar problemas con JSON serializado desde DB
                 appData.pedidos = ped.data.map(p => {
                     let parsedItems = p.items || [];
                     if (typeof parsedItems === 'string') {
@@ -1061,7 +1061,7 @@
                 renderAll();
             } catch (err) {
                 console.error('Error al cargar datos desde Supabase:', err);
-                showToast('Error al conectar con Supabase', 'error');
+                showToast(err.message || 'Error al conectar con Supabase', 'error');
             }
         }
 
@@ -1318,13 +1318,13 @@
         }
 
         async function toggleEnTienda(id, checked) {
-            const { error } = await supabaseClient.from('catalogo').update({ en_tienda: checked }).eq('id', id);
+            const { error } = await supabaseClient.from('catalogo').update({ en_tienda: checked }).eq('id', parseId(id));
             if (!error) {
                 const item = appData.catalogo.find(c => String(c.id) === String(id));
                 if (item) item.enTienda = checked;
                 showToast(checked ? 'Producto visible en Ecommerce' : 'Producto oculto de Ecommerce');
             } else {
-                showToast('Error al actualizar en Supabase', 'error');
+                showToast(error.message || 'Error al actualizar en Supabase', 'error');
                 console.error(error);
             }
         }
@@ -1336,13 +1336,15 @@
             tbody.innerHTML = appData.pedidos.map((p) => {
                 const util = (p.total || 0) - (p.costo || 0);
                 
-                let fechaFormateada = p.fecha;
-                if (p.fecha && p.fecha.includes('-')) {
-                    const [year, month, day] = p.fecha.split('-');
-                    fechaFormateada = `${day}/${month}/${year}`;
+                // Formato Día/Mes/Año robusto
+                let fechaFormateada = p.fecha || '';
+                if (fechaFormateada) {
+                    const partes = fechaFormateada.split('T')[0].split('-');
+                    if (partes.length === 3) {
+                        fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                    }
                 }
 
-                // Generando formato de productos visual
                 const resumenProds = (p.items || []).map(i => {
                     const cantidad = i.cant || i.cantidad || 1; 
                     const precio = parseFloat(i.precioUnit || i.precio || 0);
@@ -1353,7 +1355,7 @@
                 return `
                     <tr class="hover:bg-slate-900/50">
                         <td class="p-3.5 font-mono text-slate-400 text-xs">${p.id}</td>
-                        <td class="p-3.5 text-slate-400 text-xs">${fechaFormateada}</td>
+                        <td class="p-3.5 text-slate-400 text-xs font-semibold">${fechaFormateada}</td>
                         <td class="p-3.5 font-semibold text-white">${p.cliente || 'Sin nombre'}</td>
                         <td class="p-3.5 text-slate-300 text-xs">${resumenProds}</td>
                         <td class="p-3.5 text-sky-400 font-bold">$${(p.total || 0).toFixed(2)}</td>
@@ -1443,28 +1445,30 @@
 
             if (items.length === 0) { showToast('Selecciona al menos un producto válido', 'error'); return; }
 
+            // Guardar estrictamente en formato de texto JSON para evitar bloqueos del backend
+            const itemsToSave = JSON.stringify(items);
             const fechaActual = new Date().toISOString().split('T')[0];
 
             if (idEdit) {
                 const { error } = await supabaseClient.from('pedidos').update({
                     cliente,
-                    items,
+                    items: itemsToSave,
                     total,
                     costo: costoTotal
-                }).eq('id', idEdit);
+                }).eq('id', parseId(idEdit));
 
-                if (error) { showToast('Error al actualizar pedido', 'error'); console.error(error); return; }
+                if (error) { showToast(error.message || 'Error al actualizar pedido', 'error'); console.error(error); return; }
                 showToast('Pedido actualizado correctamente');
             } else {
                 const { error } = await supabaseClient.from('pedidos').insert([{
                     fecha: fechaActual,
                     cliente,
-                    items,
+                    items: itemsToSave,
                     total,
                     costo: costoTotal
                 }]);
 
-                if (error) { showToast('Error al registrar pedido', 'error'); console.error(error); return; }
+                if (error) { showToast(error.message || 'Error al registrar pedido', 'error'); console.error(error); return; }
                 showToast('Pedido guardado (Sin alterar inventario)');
             }
 
@@ -1494,17 +1498,16 @@
 
         async function eliminarPedido(id) {
             if (!confirm('¿Deseas eliminar este pedido?')) return;
-            const { error } = await supabaseClient.from('pedidos').delete().eq('id', id);
+            const { error } = await supabaseClient.from('pedidos').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Pedido eliminado');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar el pedido', 'error');
+                showToast(error.message || 'Error al eliminar el pedido', 'error');
             }
         }
 
         async function procesarPedidoAVenta(idPedido) {
-            // Conversión estricta a String en la búsqueda
             const pedido = appData.pedidos.find(p => String(p.id) === String(idPedido));
             if (!pedido) {
                 showToast('Pedido no encontrado en memoria', 'error');
@@ -1514,18 +1517,20 @@
             if (!confirm(`¿Confirmas procesar el pedido de "${pedido.cliente}" a VENTA definitiva y descontar los materiales del inventario?`)) return;
 
             try {
-                // 1. Insertar en la tabla ventas de Supabase
+                // Asegurar formato String para items de BD
+                const itemsStr = typeof pedido.items === 'string' ? pedido.items : JSON.stringify(pedido.items);
+                
                 const { error: errorVenta } = await supabaseClient.from('ventas').insert([{
                     fecha: new Date().toISOString().split('T')[0],
                     cliente: pedido.cliente,
-                    items: pedido.items,
+                    items: itemsStr,
                     total: pedido.total,
                     costo: pedido.costo
                 }]);
 
                 if (errorVenta) throw errorVenta;
 
-                // 2. Procesar deducción de inventario para cada producto en el pedido
+                // Descontar inventario
                 for (let it of (pedido.items || [])) {
                     const catItem = appData.catalogo.find(c => String(c.id) === String(it.productoId));
                     if (catItem) {
@@ -1533,15 +1538,15 @@
                     }
                 }
 
-                // 3. Eliminar el pedido de la tabla pedidos de Supabase
-                const { error: errorDel } = await supabaseClient.from('pedidos').delete().eq('id', idPedido);
+                // Borrar pedido original
+                const { error: errorDel } = await supabaseClient.from('pedidos').delete().eq('id', parseId(idPedido));
                 if (errorDel) console.warn('Pedido procesado pero falló al eliminarse de la lista activa:', errorDel);
 
                 showToast('¡Pedido convertido a VENTA y material descontado exitosamente!');
                 fetchAllData();
             } catch (err) {
                 console.error('Error al procesar pedido a venta:', err);
-                showToast('Error al procesar el pedido a venta', 'error');
+                showToast(err.message || 'Error al procesar el pedido a venta', 'error');
             }
         }
 
@@ -1559,7 +1564,7 @@
                     const invMat = appData.inventario.find(i => i.material.toLowerCase() === nombreMat.toLowerCase());
                     if (invMat) {
                         const nuevoConsumo = invMat.consumido + consumoTotalItem;
-                        await supabaseClient.from('inventario').update({ consumido: nuevoConsumo }).eq('id', invMat.id);
+                        await supabaseClient.from('inventario').update({ consumido: nuevoConsumo }).eq('id', parseId(invMat.id));
                     }
                 }
             }
@@ -1570,6 +1575,16 @@
             const tbody = document.getElementById('tabla-ventas');
             tbody.innerHTML = appData.ventas.map((v) => {
                 const util = v.total - v.costo;
+                
+                // Formato Día/Mes/Año robusto
+                let fechaFormateada = v.fecha || '';
+                if (fechaFormateada) {
+                    const partes = fechaFormateada.split('T')[0].split('-');
+                    if (partes.length === 3) {
+                        fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                    }
+                }
+
                 const resumenProds = (v.items || []).map(i => {
                     const cantidad = i.cant || i.cantidad || 1;
                     const precio = parseFloat(i.precioUnit || i.precio || 0);
@@ -1579,7 +1594,7 @@
                 return `
                     <tr class="hover:bg-slate-900/50">
                         <td class="p-3.5 font-mono text-slate-400 text-xs">${v.id}</td>
-                        <td class="p-3.5 text-slate-400 text-xs">${v.fecha}</td>
+                        <td class="p-3.5 text-slate-400 text-xs font-semibold">${fechaFormateada}</td>
                         <td class="p-3.5 font-semibold text-white">${v.cliente}</td>
                         <td class="p-3.5 text-slate-300 text-xs">${resumenProds}</td>
                         <td class="p-3.5 text-sky-400 font-bold">$${v.total.toFixed(2)}</td>
@@ -1673,28 +1688,29 @@
 
             if (items.length === 0) { showToast('Selecciona al menos un producto válido', 'error'); return; }
 
+            const itemsToSave = JSON.stringify(items);
             const fechaActual = new Date().toISOString().split('T')[0];
 
             if (idEdit) {
                 const { error } = await supabaseClient.from('ventas').update({
                     cliente,
-                    items,
+                    items: itemsToSave,
                     total,
                     costo: costoTotal
-                }).eq('id', idEdit);
+                }).eq('id', parseId(idEdit));
 
-                if (error) { showToast('Error al actualizar venta', 'error'); console.error(error); return; }
+                if (error) { showToast(error.message || 'Error al actualizar venta', 'error'); console.error(error); return; }
                 showToast('Venta actualizada correctamente');
             } else {
                 const { error } = await supabaseClient.from('ventas').insert([{
                     fecha: fechaActual,
                     cliente,
-                    items,
+                    items: itemsToSave,
                     total,
                     costo: costoTotal
                 }]);
 
-                if (error) { showToast('Error al registrar venta', 'error'); console.error(error); return; }
+                if (error) { showToast(error.message || 'Error al registrar venta', 'error'); console.error(error); return; }
                 showToast('Venta completada y material descontado');
             }
 
@@ -1724,12 +1740,12 @@
 
         async function eliminarVenta(id) {
             if (!confirm('¿Deseas eliminar este registro de venta?')) return;
-            const { error } = await supabaseClient.from('ventas').delete().eq('id', id);
+            const { error } = await supabaseClient.from('ventas').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Venta eliminada');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar venta', 'error');
+                showToast(error.message || 'Error al eliminar venta', 'error');
             }
         }
 
@@ -1769,11 +1785,13 @@
         }
 
         async function cambiarEstadoMuestra(id, nuevoEstado) {
-            const { error } = await supabaseClient.from('muestras').update({ estado: nuevoEstado }).eq('id', id);
+            const { error } = await supabaseClient.from('muestras').update({ estado: nuevoEstado }).eq('id', parseId(id));
             if (!error) {
                 const item = appData.muestras.find(m => String(m.id) === String(id));
                 if (item) item.estado = nuevoEstado;
                 showToast('Estado de muestra actualizado');
+            } else {
+                showToast(error.message, 'error');
             }
         }
 
@@ -1798,12 +1816,12 @@
             if (!cliente || !producto) { showToast('Completa los campos', 'error'); return; }
 
             if (idEdit) {
-                const { error } = await supabaseClient.from('muestras').update({ cliente, producto, costo, estado }).eq('id', idEdit);
-                if (error) { showToast('Error al actualizar muestra', 'error'); return; }
+                const { error } = await supabaseClient.from('muestras').update({ cliente, producto, costo, estado }).eq('id', parseId(idEdit));
+                if (error) { showToast(error.message || 'Error al actualizar muestra', 'error'); return; }
                 showToast('Muestra actualizada');
             } else {
                 const { error } = await supabaseClient.from('muestras').insert([{ cliente, producto, costo, estado }]);
-                if (error) { showToast('Error al guardar muestra', 'error'); return; }
+                if (error) { showToast(error.message || 'Error al guardar muestra', 'error'); return; }
                 showToast('Muestra registrada');
             }
 
@@ -1828,12 +1846,12 @@
 
         async function eliminarMuestra(id) {
             if (!confirm('¿Deseas eliminar esta muestra?')) return;
-            const { error } = await supabaseClient.from('muestras').delete().eq('id', id);
+            const { error } = await supabaseClient.from('muestras').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Muestra eliminada');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar muestra', 'error');
+                showToast(error.message || 'Error al eliminar muestra', 'error');
             }
         }
 
@@ -1866,11 +1884,13 @@
         }
 
         async function cambiarEstadoProspecto(id, nuevoEstado) {
-            const { error } = await supabaseClient.from('prospectos').update({ estado: nuevoEstado }).eq('id', id);
+            const { error } = await supabaseClient.from('prospectos').update({ estado: nuevoEstado }).eq('id', parseId(id));
             if (!error) {
                 const item = appData.prospectos.find(p => String(p.id) === String(id));
                 if (item) item.estado = nuevoEstado;
                 showToast('Estado de prospecto actualizado');
+            } else {
+                showToast(error.message, 'error');
             }
         }
 
@@ -1884,12 +1904,12 @@
             if (!producto) { showToast('Ingresa el nombre del producto/idea', 'error'); return; }
 
             if (idEdit) {
-                const { error } = await supabaseClient.from('prospectos').update({ producto, detalle_estado, prioridad, estado }).eq('id', idEdit);
-                if (error) { showToast('Error al actualizar idea', 'error'); return; }
+                const { error } = await supabaseClient.from('prospectos').update({ producto, detalle_estado, prioridad, estado }).eq('id', parseId(idEdit));
+                if (error) { showToast(error.message || 'Error al actualizar idea', 'error'); return; }
                 showToast('Idea actualizada');
             } else {
                 const { error } = await supabaseClient.from('prospectos').insert([{ producto, detalle_estado, prioridad, estado }]);
-                if (error) { showToast('Error al guardar idea', 'error'); return; }
+                if (error) { showToast(error.message || 'Error al guardar idea', 'error'); return; }
                 showToast('Idea registrada');
             }
 
@@ -1913,12 +1933,12 @@
 
         async function eliminarProspecto(id) {
             if (!confirm('¿Deseas eliminar este prospecto?')) return;
-            const { error } = await supabaseClient.from('prospectos').delete().eq('id', id);
+            const { error } = await supabaseClient.from('prospectos').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Prospecto eliminado');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar prospecto', 'error');
+                showToast(error.message || 'Error al eliminar prospecto', 'error');
             }
         }
 
@@ -1951,11 +1971,13 @@
         }
 
         async function cambiarEstadoTarea(id, nuevoEstado) {
-            const { error } = await supabaseClient.from('tareas').update({ estado: nuevoEstado }).eq('id', id);
+            const { error } = await supabaseClient.from('tareas').update({ estado: nuevoEstado }).eq('id', parseId(id));
             if (!error) {
                 const item = appData.tareas.find(t => String(t.id) === String(id));
                 if (item) item.estado = nuevoEstado;
                 showToast('Estado de tarea actualizado');
+            } else {
+                showToast(error.message, 'error');
             }
         }
 
@@ -1969,12 +1991,12 @@
             if (!descripcion) { showToast('Ingresa la descripción de la tarea', 'error'); return; }
 
             if (idEdit) {
-                const { error } = await supabaseClient.from('tareas').update({ descripcion, detalle_estado, prioridad, estado }).eq('id', idEdit);
-                if (error) { showToast('Error al actualizar tarea', 'error'); return; }
+                const { error } = await supabaseClient.from('tareas').update({ descripcion, detalle_estado, prioridad, estado }).eq('id', parseId(idEdit));
+                if (error) { showToast(error.message || 'Error al actualizar tarea', 'error'); return; }
                 showToast('Tarea actualizada');
             } else {
                 const { error } = await supabaseClient.from('tareas').insert([{ descripcion, detalle_estado, prioridad, estado }]);
-                if (error) { showToast('Error al guardar tarea', 'error'); return; }
+                if (error) { showToast(error.message || 'Error al guardar tarea', 'error'); return; }
                 showToast('Tarea registrada');
             }
 
@@ -1998,12 +2020,12 @@
 
         async function eliminarTarea(id) {
             if (!confirm('¿Deseas eliminar esta tarea?')) return;
-            const { error } = await supabaseClient.from('tareas').delete().eq('id', id);
+            const { error } = await supabaseClient.from('tareas').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Tarea eliminada');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar tarea', 'error');
+                showToast(error.message || 'Error al eliminar tarea', 'error');
             }
         }
 
@@ -2019,12 +2041,12 @@
             if (!material) { showToast('Ingresa el nombre del material', 'error'); return; }
 
             if (idEdit) {
-                const { error } = await supabaseClient.from('inventario').update({ material, unidad, costo_kg, total, consumido }).eq('id', idEdit);
-                if (error) { showToast('Error al actualizar inventario', 'error'); return; }
+                const { error } = await supabaseClient.from('inventario').update({ material, unidad, costo_kg, total, consumido }).eq('id', parseId(idEdit));
+                if (error) { showToast(error.message || 'Error al actualizar inventario', 'error'); return; }
                 showToast('Material actualizado');
             } else {
                 const { error } = await supabaseClient.from('inventario').insert([{ material, unidad, costo_kg, total, consumido }]);
-                if (error) { showToast('Error al guardar material', 'error'); return; }
+                if (error) { showToast(error.message || 'Error al guardar material', 'error'); return; }
                 showToast('Material guardado');
             }
 
@@ -2049,12 +2071,12 @@
 
         async function eliminarInventario(id) {
             if (!confirm('¿Deseas eliminar este material?')) return;
-            const { error } = await supabaseClient.from('inventario').delete().eq('id', id);
+            const { error } = await supabaseClient.from('inventario').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Material eliminado');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar material', 'error');
+                showToast(error.message || 'Error al eliminar material', 'error');
             }
         }
 
@@ -2067,12 +2089,12 @@
             if (!nombre) { showToast('Ingresa el nombre de la categoría', 'error'); return; }
 
             if (idEdit) {
-                const { error } = await supabaseClient.from('categorias').update({ nombre, descripcion }).eq('id', idEdit);
-                if (error) { showToast('Error al actualizar categoría', 'error'); return; }
+                const { error } = await supabaseClient.from('categorias').update({ nombre, descripcion }).eq('id', parseId(idEdit));
+                if (error) { showToast(error.message || 'Error al actualizar categoría', 'error'); return; }
                 showToast('Categoría actualizada');
             } else {
                 const { error } = await supabaseClient.from('categorias').insert([{ nombre, descripcion }]);
-                if (error) { showToast('Error al guardar categoría', 'error'); return; }
+                if (error) { showToast(error.message || 'Error al guardar categoría', 'error'); return; }
                 showToast('Categoría creada');
             }
 
@@ -2094,12 +2116,12 @@
 
         async function eliminarCategoria(id) {
             if (!confirm('¿Deseas eliminar esta categoría?')) return;
-            const { error } = await supabaseClient.from('categorias').delete().eq('id', id);
+            const { error } = await supabaseClient.from('categorias').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Categoría eliminada');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar categoría', 'error');
+                showToast(error.message || 'Error al eliminar categoría', 'error');
             }
         }
 
@@ -2197,7 +2219,7 @@
                 en_tienda: false
             }]);
 
-            if (error) { showToast('Error al guardar en catálogo', 'error'); return; }
+            if (error) { showToast(error.message || 'Error al guardar en catálogo', 'error'); return; }
             showToast('Producto añadido al catálogo de Supabase');
             fetchAllData();
             showTab('catalogo');
@@ -2304,7 +2326,7 @@
                 const { data: uploadData, error: uploadErr } = await supabaseClient.storage.from('productos-img').upload(fileName, file);
 
                 if (uploadErr) {
-                    showToast('Error al subir la imagen', 'error');
+                    showToast(uploadErr.message || 'Error al subir la imagen', 'error');
                     console.error(uploadErr);
                 } else {
                     const { data: publicUrlData } = supabaseClient.storage.from('productos-img').getPublicUrl(fileName);
@@ -2315,12 +2337,12 @@
             const payload = { producto, categoria, colores, descripcion, en_tienda, imagen_url, material_info, gramos, horas, costo_filamento, costo, precio_min, precio };
 
             if (idEdit) {
-                const { error } = await supabaseClient.from('catalogo').update(payload).eq('id', idEdit);
-                if (error) { showToast('Error al actualizar catálogo', 'error'); return; }
+                const { error } = await supabaseClient.from('catalogo').update(payload).eq('id', parseId(idEdit));
+                if (error) { showToast(error.message || 'Error al actualizar catálogo', 'error'); return; }
                 showToast('Producto de catálogo actualizado');
             } else {
                 const { error } = await supabaseClient.from('catalogo').insert([payload]);
-                if (error) { showToast('Error al insertar producto', 'error'); return; }
+                if (error) { showToast(error.message || 'Error al insertar producto', 'error'); return; }
                 showToast('Producto añadido al catálogo');
             }
 
@@ -2349,12 +2371,12 @@
 
         async function eliminarCatalogo(id) {
             if (!confirm('¿Deseas eliminar este producto del catálogo?')) return;
-            const { error } = await supabaseClient.from('catalogo').delete().eq('id', id);
+            const { error } = await supabaseClient.from('catalogo').delete().eq('id', parseId(id));
             if (!error) {
                 showToast('Producto del catálogo eliminado');
                 fetchAllData();
             } else {
-                showToast('Error al eliminar del catálogo', 'error');
+                showToast(error.message || 'Error al eliminar del catálogo', 'error');
             }
         }
     </script>
