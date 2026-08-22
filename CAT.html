@@ -44,9 +44,17 @@
                     <p class="text-xs text-slate-400">Selecciona tus productos y haz tu pedido</p>
                 </div>
             </div>
-            <button onclick="cargarCatalogoCliente()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-2 rounded-xl text-slate-300 flex items-center space-x-2 border border-slate-700 transition">
-                <i class="fa-solid fa-rotate text-sky-400"></i> <span class="hidden sm:inline">Actualizar</span>
-            </button>
+            <div class="flex items-center space-x-2">
+
+                <!-- Botón de Actualizar -->
+                <button onclick="cargarCatalogoCliente()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-2 rounded-xl text-slate-300 flex items-center justify-center border border-slate-700 transition">
+                    <i class="fa-solid fa-rotate text-sky-400"></i> <span class="hidden sm:inline">Actualizar</span>
+                </button>
+                <!-- Botón de Panel / Gestión -->
+                <button onclick="window.location.href='panel.html'" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-2 rounded-xl text-slate-300 flex items-center space-x-2 border border-slate-700 transition" title="Panel de Control">
+                    <i class="fa-solid fa-key text-amber-400"></i> 
+                </button>
+            </div>
         </div>
     </header>
 
