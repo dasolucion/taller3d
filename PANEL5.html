@@ -1448,40 +1448,72 @@
         }
 
         async function guardarCatalogoManually() {
-            const id = document.getElementById('cat-edit-id').value || `P-${Date.now()}`;
-            const producto = document.getElementById('cat-nombre').value;
-            if (!producto) return alert('Ingresa el nombre del producto');
+    const id = document.getElementById('cat-edit-id').value || `P-${Date.now()}`;
+    const producto = document.getElementById('cat-nombre').value;
+    if (!producto) return alert('Ingresa el nombre del producto');
 
-            let imagen_url = document.getElementById('cat-imagen-url').value;
-            const fileInput = document.getElementById('cat-imagen-file');
-            
-            if (fileInput.files && fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
-                const { error: uploadError } = await supabaseClient.storage.from('productos-img').upload(fileName, file, { upsert: true });
-                if (!uploadError) {
-                    const { data } = supabaseClient.storage.from('productos-img').getPublicUrl(fileName);
-                    imagen_url = data.publicUrl;
-                }
+    // Guardamos la URL actual para saber si hay que borrarla al reemplazar
+    const oldImageUrl = document.getElementById('cat-imagen-url').value;
+    let imagen_url = oldImageUrl; 
+    const fileInput = document.getElementById('cat-imagen-file');
+    
+    // Si el usuario seleccionó un archivo nuevo
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
+        
+        // Subir la nueva imagen
+        const { error: uploadError } = await supabaseClient.storage.from('productos-img').upload(fileName, file, { upsert: true });
+        
+        if (!uploadError) {
+            // Obtener URL de la nueva imagen
+            const { data } = supabaseClient.storage.from('productos-img').getPublicUrl(fileName);
+            imagen_url = data.publicUrl;
+
+            // BORRAR IMAGEN ANTERIOR: Si había una imagen previa y NO es la imagen por defecto
+            if (oldImageUrl && !oldImageUrl.endsWith('NP.webp')) {
+                // Extraer el nombre del archivo desde la URL (lo que está al final del último '/')
+                const oldFileName = decodeURIComponent(oldImageUrl.split('/').pop());
+                
+                // Eliminar del bucket
+                const { error: deleteError } = await supabaseClient.storage.from('productos-img').remove([oldFileName]);
+                if (deleteError) console.warn("No se pudo borrar la imagen anterior:", deleteError);
             }
-
-            const payload = { 
-                id, producto, categoria: document.getElementById('cat-categoria').value, 
-                descripcion: document.getElementById('cat-descripcion').value, colores: document.getElementById('cat-colores').value, 
-                en_tienda: document.getElementById('cat-en-tienda').checked, imagen_url, 
-                material_info: document.getElementById('cat-material-info').value, 
-                gramos: parseFloat(document.getElementById('cat-gramos').value) || 0, 
-                horas: parseFloat(document.getElementById('cat-horas').value) || 0, 
-                costo_filamento: parseFloat(document.getElementById('cat-costo-filamento').value) || 0, 
-                costo: parseFloat(document.getElementById('cat-costo').value) || 0, 
-                precio_min: parseFloat(document.getElementById('cat-precio-min').value) || 0, 
-                precio: parseFloat(document.getElementById('cat-precio').value) || 0 
-            };
-
-            const { error } = await supabaseClient.from('catalogo').upsert(payload);
-            if (!error) { showToast('Producto guardado'); closeModal('modal-catalogo'); await fetchAllData(); }
-            else showToast('Error al guardar catálogo', 'error');
+        } else {
+            console.error(uploadError);
+            return alert('Error al subir la imagen');
         }
+    } else {
+        // IMAGEN POR DEFECTO: Si no hay archivo nuevo y tampoco hay una URL de imagen previa
+        if (!imagen_url) {
+            const { data } = supabaseClient.storage.from('productos-img').getPublicUrl('NP.webp');
+            imagen_url = data.publicUrl;
+        }
+    }
+
+    const payload = { 
+        id, producto, categoria: document.getElementById('cat-categoria').value, 
+        descripcion: document.getElementById('cat-descripcion').value, colores: document.getElementById('cat-colores').value, 
+        en_tienda: document.getElementById('cat-en-tienda').checked, imagen_url, 
+        material_info: document.getElementById('cat-material-info').value, 
+        gramos: parseFloat(document.getElementById('cat-gramos').value) || 0, 
+        horas: parseFloat(document.getElementById('cat-horas').value) || 0, 
+        costo_filamento: parseFloat(document.getElementById('cat-costo-filamento').value) || 0, 
+        costo: parseFloat(document.getElementById('cat-costo').value) || 0, 
+        precio_min: parseFloat(document.getElementById('cat-precio-min').value) || 0, 
+        precio: parseFloat(document.getElementById('cat-precio').value) || 0 
+    };
+
+    const { error } = await supabaseClient.from('catalogo').upsert(payload);
+    
+    if (!error) { 
+        showToast('Producto guardado'); 
+        closeModal('modal-catalogo'); 
+        await fetchAllData(); 
+    } else {
+        showToast('Error al guardar catálogo', 'error');
+    }
+}
 
         function editarCatalogo(id) {
             const item = appData.catalogo.find(c => String(c.id) === String(id));
