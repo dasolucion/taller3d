@@ -55,507 +55,507 @@
     <!-- Notificaciones Toast -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
 
-<div id="dashboard-app" class="hidden w-full flex-col md:flex-row min-h-screen">
+    <div id="dashboard-app" class="hidden w-full flex-col md:flex-row min-h-screen">
 
-<div id="mobile-menu-backdrop" class="fixed inset-0 bg-slate-950/80 z-30 hidden md:hidden backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
+        <div id="mobile-menu-backdrop" class="fixed inset-0 bg-slate-950/80 z-30 hidden md:hidden backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
 
-    <!-- Header Móvil -->
-<header class="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-20">
-        <!-- Lado Izquierdo: Botón Menú + Logo -->
-        <div class="flex items-center space-x-3">
-            <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2" title="Abrir Menú">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-            <div class="bg-sky-500 text-slate-950 p-2 rounded-lg font-bold">
-                <i class="fa-solid fa-cube text-lg"></i>
+        <!-- Header Móvil -->
+        <header class="md:hidden bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-20">
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2" title="Abrir Menú">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div class="bg-sky-500 text-slate-950 p-2 rounded-lg font-bold">
+                    <i class="fa-solid fa-cube text-lg"></i>
+                </div>
+                <span class="font-bold text-white text-base">Taller 3D Pro</span>
             </div>
-            <span class="font-bold text-white text-base">Taller 3D Pro</span>
-        </div>
-        <!-- Lado Derecho: Botón Salir -->
-        <div class="flex items-center space-x-2">
-            <button onclick="cerrarSesion()" class="text-red-400 hover:text-red-300 p-2" title="Cerrar Sesión">
-                <i class="fa-solid fa-right-from-bracket text-lg"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- Sidebar / Navegación principal -->
-<aside id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 md:relative md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 flex-shrink-0 transition-all duration-300">
-        <div class="p-4 hidden md:flex items-center space-x-3 border-b border-slate-800">
-            <div class="bg-sky-500 text-slate-950 p-2.5 rounded-xl font-bold shadow-lg shadow-sky-500/20">
-                <i class="fa-solid fa-cube text-xl"></i>
+            <div class="flex items-center space-x-2">
+                <button onclick="cerrarSesion()" class="text-red-400 hover:text-red-300 p-2" title="Cerrar Sesión">
+                    <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                </button>
             </div>
-            <div>
-                <h1 class="font-bold text-base leading-tight text-white">Taller 3D Pro</h1>
-                <p class="text-xs text-sky-400 font-mono">Control Cloud (Supabase)</p>
-            </div>
-        </div>
+        </header>
 
-        <nav class="p-3 space-y-1 text-sm font-medium flex-1 overflow-y-auto">
-            <button onclick="showTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition active-tab">
-                <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-                <span>Dashboard Ejecutivo</span>
-            </button>
-            <button onclick="showTab('calculadora')" id="nav-calculadora" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-calculator w-5 text-center text-emerald-400"></i>
-                <span class="text-emerald-400 font-semibold">Cotizador Rápido</span>
-            </button>
-            <button onclick="showTab('inventario')" id="nav-inventario" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-boxes-stacked w-5 text-center"></i>
-                <span>Inventario de Materiales</span>
-            </button>
-            <button onclick="showTab('categorias')" id="nav-categorias" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-tags w-5 text-center"></i>
-                <span>Categorías</span>
-            </button>
-            <button onclick="showTab('catalogo')" id="nav-catalogo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-book-open w-5 text-center"></i>
-                <span>Catálogo Productos</span>
-            </button>
-            <button onclick="showTab('ventas')" id="nav-ventas" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-receipt w-5 text-center text-emerald-400"></i>
-                <span>Registro Ventas</span>
-            </button>
-            <button onclick="showTab('pedidos')" id="nav-pedidos" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-truck-ramp-box w-5 text-center text-sky-400"></i>
-                <span>Registro Pedidos</span>
-            </button>
-            <button onclick="showTab('muestras')" id="nav-muestras" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-flask w-5 text-center"></i>
-                <span>Pipeline Muestras</span>
-            </button>
-            <button onclick="showTab('prospectos')" id="nav-prospectos" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-lightbulb w-5 text-center text-amber-400"></i>
-                <span>Prospectos / Ideas</span>
-            </button>
-            <button onclick="showTab('tareas')" id="nav-tareas" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
-                <i class="fa-solid fa-list-check w-5 text-center"></i>
-                <span>Tareas Pendientes</span>
-            </button>
-        </nav>
-
-        <div class="p-3 border-t border-slate-800 space-y-2 bg-slate-900/50">
-            <button onclick="fetchAllData()" class="w-full bg-slate-800 hover:bg-slate-700 text-xs py-2 px-2 rounded-lg text-slate-300 flex items-center justify-center space-x-2 border border-slate-700 transition">
-                <i class="fa-solid fa-rotate text-sky-400"></i> <span>Sincronizar Datos</span>
-            </button>
-            <button onclick="cerrarSesion()" class="w-full bg-red-950/40 hover:bg-red-900/60 text-xs py-2 px-2 rounded-lg text-red-400 flex items-center justify-center space-x-2 border border-red-500/30 transition font-medium">
-                <i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
-            </button>
-        </div>
-    </aside>
-
-    <!-- Contenido Principal -->
-    <main class="flex-1 p-4 md:p-6 overflow-y-auto">
-
-        <!-- 1. DASHBOARD EJECUTIVO -->
-        <section id="sec-dashboard" class="space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <!-- Sidebar / Navegación principal -->
+        <aside id="sidebar" class="hidden fixed inset-y-0 left-0 z-50 md:relative md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 flex-shrink-0 transition-all duration-300">
+            <div class="p-4 hidden md:flex items-center space-x-3 border-b border-slate-800">
+                <div class="bg-sky-500 text-slate-950 p-2.5 rounded-xl font-bold shadow-lg shadow-sky-500/20">
+                    <i class="fa-solid fa-cube text-xl"></i>
+                </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-white tracking-tight">Dashboard Ejecutivo</h2>
-                    <p class="text-sm text-slate-400">Resumen operativo y financiero sincronizado con Supabase</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span id="cloud-status" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-3 py-1.5 rounded-full font-medium flex items-center">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span> Conectado a Supabase
-                    </span>
+                    <h1 class="font-bold text-base leading-tight text-white">Taller 3D Pro</h1>
+                    <p class="text-xs text-sky-400 font-mono">Control Cloud (Supabase)</p>
                 </div>
             </div>
 
-            <!-- KPIs Finanzas Ampliados -->
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
-                    <p class="text-[10px] sm:text-xs font-medium text-slate-400">Ingresos Totales</p>
-                    <h3 id="kpi-ingresos" class="text-xl sm:text-2xl font-bold text-white mt-1">$0.00</h3>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
-                    <p class="text-[10px] sm:text-xs font-medium text-slate-400">Costo Filamento</p>
-                    <h3 id="kpi-costo-filamento" class="text-xl sm:text-2xl font-bold text-amber-400 mt-1">$0.00</h3>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
-                    <p class="text-[10px] sm:text-xs font-medium text-slate-400">Costo de Ventas (Total)</p>
-                    <h3 id="kpi-costo-ventas" class="text-xl sm:text-2xl font-bold text-rose-400 mt-1">$0.00</h3>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
-                    <p class="text-[10px] sm:text-xs font-medium text-slate-400">Utilidad Bruta</p>
-                    <h3 id="kpi-utilidad-bruta" class="text-xl sm:text-2xl font-bold text-sky-400 mt-1">$0.00</h3>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
-                    <p class="text-[10px] sm:text-xs font-medium text-slate-400">Inv. en Muestras</p>
-                    <h3 id="kpi-muestras" class="text-xl sm:text-2xl font-bold text-orange-400 mt-1">$0.00</h3>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
-                    <p class="text-[10px] sm:text-xs font-medium text-slate-400">Utilidad Neta Líquida</p>
-                    <h3 id="kpi-utilidad" class="text-xl sm:text-2xl font-bold text-emerald-400 mt-1">$0.00</h3>
-                    <p id="kpi-margen" class="text-[10px] text-emerald-500 font-semibold mt-1">0.0% margen global</p>
-                </div>
-            </div>
+            <nav class="p-3 space-y-1 text-sm font-medium flex-1 overflow-y-auto">
+                <button onclick="showTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition active-tab">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Dashboard Ejecutivo</span>
+                </button>
+                <button onclick="showTab('calculadora')" id="nav-calculadora" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-calculator w-5 text-center text-emerald-400"></i>
+                    <span class="text-emerald-400 font-semibold">Cotizador Rápido</span>
+                </button>
+                <button onclick="showTab('inventario')" id="nav-inventario" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-boxes-stacked w-5 text-center"></i>
+                    <span>Inventario de Materiales</span>
+                </button>
+                <button onclick="showTab('categorias')" id="nav-categorias" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-tags w-5 text-center"></i>
+                    <span>Categorías</span>
+                </button>
+                <button onclick="showTab('catalogo')" id="nav-catalogo" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-book-open w-5 text-center"></i>
+                    <span>Catálogo Productos</span>
+                </button>
+                <button onclick="showTab('ventas')" id="nav-ventas" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-receipt w-5 text-center text-emerald-400"></i>
+                    <span>Registro Ventas</span>
+                </button>
+                <button onclick="showTab('pedidos')" id="nav-pedidos" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-truck-ramp-box w-5 text-center text-sky-400"></i>
+                    <span>Registro Pedidos</span>
+                </button>
+                <button onclick="showTab('muestras')" id="nav-muestras" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-flask w-5 text-center"></i>
+                    <span>Pipeline Muestras</span>
+                </button>
+                <button onclick="showTab('prospectos')" id="nav-prospectos" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-lightbulb w-5 text-center text-amber-400"></i>
+                    <span>Prospectos / Ideas</span>
+                </button>
+                <button onclick="showTab('tareas')" id="nav-tareas" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-list-check w-5 text-center"></i>
+                    <span>Tareas Pendientes</span>
+                </button>
+            </nav>
 
-            <!-- Gráficos Fila 1 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
-                    <h4 class="text-sm font-bold text-white mb-4 flex items-center">
-                        <i class="fa-solid fa-chart-column mr-2 text-sky-400"></i> Estructura Financiera Global
-                    </h4>
-                    <div class="h-64 flex items-center justify-center">
-                        <canvas id="chartFinanciero"></canvas>
-                    </div>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
-                    <h4 class="text-sm font-bold text-white mb-4 flex items-center">
-                        <i class="fa-solid fa-bolt mr-2 text-amber-400"></i> Top Productos por Eficiencia ($/h)
-                    </h4>
-                    <div class="h-64 flex items-center justify-center">
-                        <canvas id="chartRentabilidad"></canvas>
-                    </div>
-                </div>
+            <div class="p-3 border-t border-slate-800 space-y-2 bg-slate-900/50">
+                <button onclick="fetchAllData()" class="w-full bg-slate-800 hover:bg-slate-700 text-xs py-2 px-2 rounded-lg text-slate-300 flex items-center justify-center space-x-2 border border-slate-700 transition">
+                    <i class="fa-solid fa-rotate text-sky-400"></i> <span>Sincronizar Datos</span>
+                </button>
+                <button onclick="cerrarSesion()" class="w-full bg-red-950/40 hover:bg-red-900/60 text-xs py-2 px-2 rounded-lg text-red-400 flex items-center justify-center space-x-2 border border-red-500/30 transition font-medium">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Cerrar Sesión</span>
+                </button>
             </div>
+        </aside>
 
-            <!-- Gráficos Fila 2 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
-                    <h4 class="text-sm font-bold text-white mb-4 flex items-center">
-                        <i class="fa-solid fa-trophy mr-2 text-sky-400"></i> Top Productos Más Vendidos
-                    </h4>
-                    <div class="h-64 flex items-center justify-center">
-                        <canvas id="chartMasVendidos"></canvas>
-                    </div>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
-                    <h4 class="text-sm font-bold text-white mb-4 flex items-center">
-                        <i class="fa-solid fa-percent mr-2 text-emerald-400"></i> Top Mayor Margen de Utilidad
-                    </h4>
-                    <div class="h-64 flex items-center justify-center">
-                        <canvas id="chartMayorMargen"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Contenido Principal -->
+        <main class="flex-1 p-4 md:p-6 overflow-y-auto">
 
-        <!-- 2. COTIZADOR RÁPIDO -->
-        <section id="sec-calculadora" class="space-y-6 hidden">
-            <div>
-                <h2 class="text-2xl font-bold text-white">Calculadora & Cotizador Rápido</h2>
-                <p class="text-sm text-slate-400">Calcula costos exactos basados en tu inventario de la nube</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl space-y-4">
-                    <h3 class="text-base font-bold text-sky-400 border-b border-slate-800 pb-2 flex items-center">
-                        <i class="fa-solid fa-sliders mr-2"></i> Parámetros de la Pieza
-                    </h3>
+            <!-- 1. DASHBOARD EJECUTIVO -->
+            <section id="sec-dashboard" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Nombre del Producto</label>
-                        <input id="calc-nombre" type="text" placeholder="Ej. Soporte para Teléfono" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm focus:border-sky-500 outline-none text-white">
+                        <h2 class="text-2xl font-bold text-white tracking-tight">Dashboard Ejecutivo</h2>
+                        <p class="text-sm text-slate-400">Resumen operativo y financiero sincronizado con Supabase</p>
                     </div>
-
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="block text-xs font-medium text-slate-300">Materiales Requeridos</label>
-                            <button type="button" onclick="agregarFilaMaterialCotizador()" class="text-xs text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1">
-                                <i class="fa-solid fa-plus-circle"></i> Agregar Material
-                            </button>
-                        </div>
-                        <div id="calc-materiales-container" class="space-y-2"></div>
+                    <div class="flex items-center space-x-2">
+                        <span id="cloud-status" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-3 py-1.5 rounded-full font-medium flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span> Conectado a Supabase
+                        </span>
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Especificación de Materiales Generada</label>
-                        <input id="calc-material-info" type="text" readonly placeholder="Se calcula automáticamente..." class="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-xs text-sky-400 outline-none">
+                <!-- KPIs Finanzas Ampliados -->
+                <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
+                        <p class="text-[10px] sm:text-xs font-medium text-slate-400">Ingresos Totales</p>
+                        <h3 id="kpi-ingresos" class="text-xl sm:text-2xl font-bold text-white mt-1">$0.00</h3>
                     </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
+                        <p class="text-[10px] sm:text-xs font-medium text-slate-400">Costo Materiales</p>
+                        <h3 id="kpi-costo-filamento" class="text-xl sm:text-2xl font-bold text-amber-400 mt-1">$0.00</h3>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
+                        <p class="text-[10px] sm:text-xs font-medium text-slate-400">Costo de Ventas (Total)</p>
+                        <h3 id="kpi-costo-ventas" class="text-xl sm:text-2xl font-bold text-rose-400 mt-1">$0.00</h3>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
+                        <p class="text-[10px] sm:text-xs font-medium text-slate-400">Utilidad Bruta</p>
+                        <h3 id="kpi-utilidad-bruta" class="text-xl sm:text-2xl font-bold text-sky-400 mt-1">$0.00</h3>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
+                        <p class="text-[10px] sm:text-xs font-medium text-slate-400">Inv. en Muestras</p>
+                        <h3 id="kpi-muestras" class="text-xl sm:text-2xl font-bold text-orange-400 mt-1">$0.00</h3>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition">
+                        <p class="text-[10px] sm:text-xs font-medium text-slate-400">Utilidad Neta Líquida</p>
+                        <h3 id="kpi-utilidad" class="text-xl sm:text-2xl font-bold text-emerald-400 mt-1">$0.00</h3>
+                        <p id="kpi-margen" class="text-[10px] text-emerald-500 font-semibold mt-1">0.0% margen global</p>
+                    </div>
+                </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Tiempo Impresión (Minutos)</label>
-                            <input id="calc-minutos" type="number" value="30" oninput="calcularCotizacion()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm focus:border-sky-500 outline-none text-white">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-300 mb-1">Costo Hora Máquina/Luz ($/h)</label>
-                            <input id="calc-costo-h" type="number" value="0.35" step="0.01" oninput="calcularCotizacion()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm focus:border-sky-500 outline-none text-white">
+                <!-- Gráficos Fila 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+                        <h4 class="text-sm font-bold text-white mb-4 flex items-center">
+                            <i class="fa-solid fa-chart-column mr-2 text-sky-400"></i> Estructura Financiera Global
+                        </h4>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="chartFinanciero"></canvas>
                         </div>
                     </div>
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+                        <h4 class="text-sm font-bold text-white mb-4 flex items-center">
+                            <i class="fa-solid fa-bolt mr-2 text-amber-400"></i> Top Productos por Eficiencia ($/h)
+                        </h4>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="chartRentabilidad"></canvas>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-5 rounded-xl space-y-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-emerald-400 border-b border-slate-800 pb-2 flex items-center">
-                            <i class="fa-solid fa-chart-line mr-2"></i> Costos Calculados y Precios Sugeridos
+                <!-- Gráficos Fila 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+                        <h4 class="text-sm font-bold text-white mb-4 flex items-center">
+                            <i class="fa-solid fa-trophy mr-2 text-sky-400"></i> Top Productos Más Vendidos
+                        </h4>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="chartMasVendidos"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+                        <h4 class="text-sm font-bold text-white mb-4 flex items-center">
+                            <i class="fa-solid fa-percent mr-2 text-emerald-400"></i> Top Mayor Margen de Utilidad
+                        </h4>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="chartMayorMargen"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. COTIZADOR RÁPIDO -->
+            <section id="sec-calculadora" class="space-y-6 hidden">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Calculadora & Cotizador Rápido</h2>
+                    <p class="text-sm text-slate-400">Calcula costos exactos basados en tu inventario de la nube</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl space-y-4">
+                        <h3 class="text-base font-bold text-sky-400 border-b border-slate-800 pb-2 flex items-center">
+                            <i class="fa-solid fa-sliders mr-2"></i> Parámetros de la Pieza
                         </h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                                <p class="text-xs text-slate-400">Costo Material</p>
-                                <p id="res-costo-mat" class="text-lg font-bold text-sky-400 mt-0.5">$0.00</p>
-                            </div>
-                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                                <p class="text-xs text-slate-400">Costo Máquina</p>
-                                <p id="res-costo-maq" class="text-lg font-bold text-white mt-0.5">$0.00</p>
-                            </div>
-                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                                <p class="text-xs text-slate-400">Costo Total</p>
-                                <p id="res-costo-total" class="text-lg font-bold text-amber-400 mt-0.5">$0.00</p>
-                            </div>
-                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                                <p class="text-xs text-slate-400">Eficiencia ($/h)</p>
-                                <p id="res-eficiencia" class="text-lg font-bold text-emerald-400 mt-0.5">$0.00/h</p>
-                            </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Nombre del Producto</label>
+                            <input id="calc-nombre" type="text" placeholder="Ej. Soporte para Teléfono" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm focus:border-sky-500 outline-none text-white">
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                            <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-1">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">PRECIO MÍNIMO (PISO 30% MARGEN)</p>
-                                <p id="res-precio-min" class="text-2xl font-bold text-slate-200">$0.00</p>
-                                <p class="text-xs text-slate-500">Para clientes frecuentes o lotes al mayor</p>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-medium text-slate-300">Materiales Requeridos</label>
+                                <button type="button" onclick="agregarFilaMaterialCotizador()" class="text-xs text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-plus-circle"></i> Agregar Material
+                                </button>
                             </div>
-                            <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/30 space-y-1">
-                                <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider">PRECIO SUGERIDO (PVP RECOMENDADO)</p>
-                                <p id="res-precio-sug" class="text-2xl font-bold text-emerald-300">$0.00</p>
-                                <p class="text-xs text-emerald-400/70">Excelente rentabilidad comercial</p>
+                            <div id="calc-materiales-container" class="space-y-2"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Especificación de Materiales Generada</label>
+                            <input id="calc-material-info" type="text" readonly placeholder="Se calcula automáticamente..." class="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2 text-xs text-sky-400 outline-none">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Tiempo Impresión (Minutos)</label>
+                                <input id="calc-minutos" type="number" value="30" oninput="calcularCotizacion()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm focus:border-sky-500 outline-none text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-300 mb-1">Costo Hora Máquina/Luz ($/h)</label>
+                                <input id="calc-costo-h" type="number" value="0.35" step="0.01" oninput="calcularCotizacion()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm focus:border-sky-500 outline-none text-white">
                             </div>
                         </div>
                     </div>
 
-                    <button onclick="agregarCotizacionAlCatalogo()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20">
-                        <i class="fa-solid fa-plus-circle"></i> <span>Guardar Directamente en el Catálogo Supabase</span>
+                    <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-5 rounded-xl space-y-6 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-emerald-400 border-b border-slate-800 pb-2 flex items-center">
+                                <i class="fa-solid fa-chart-line mr-2"></i> Costos Calculados y Precios Sugeridos
+                            </h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+                                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                    <p class="text-xs text-slate-400">Costo Material</p>
+                                    <p id="res-costo-mat" class="text-lg font-bold text-sky-400 mt-0.5">$0.00</p>
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                    <p class="text-xs text-slate-400">Costo Máquina</p>
+                                    <p id="res-costo-maq" class="text-lg font-bold text-white mt-0.5">$0.00</p>
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                    <p class="text-xs text-slate-400">Costo Total</p>
+                                    <p id="res-costo-total" class="text-lg font-bold text-amber-400 mt-0.5">$0.00</p>
+                                </div>
+                                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                    <p class="text-xs text-slate-400">Eficiencia ($/h)</p>
+                                    <p id="res-eficiencia" class="text-lg font-bold text-emerald-400 mt-0.5">$0.00/h</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                                <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 space-y-1">
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">PRECIO MÍNIMO (PISO 30% MARGEN)</p>
+                                    <p id="res-precio-min" class="text-2xl font-bold text-slate-200">$0.00</p>
+                                    <p class="text-xs text-slate-500">Para clientes frecuentes o lotes al mayor</p>
+                                </div>
+                                <div class="bg-emerald-950/30 p-4 rounded-xl border border-emerald-500/30 space-y-1">
+                                    <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider">PRECIO SUGERIDO (PVP RECOMENDADO)</p>
+                                    <p id="res-precio-sug" class="text-2xl font-bold text-emerald-300">$0.00</p>
+                                    <p class="text-xs text-emerald-400/70">Excelente rentabilidad comercial</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="agregarCotizacionAlCatalogo()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/20">
+                            <i class="fa-solid fa-plus-circle"></i> <span>Guardar Directamente en el Catálogo Supabase</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. INVENTARIO -->
+            <section id="sec-inventario" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Inventario de Materiales</h2>
+                        <p class="text-sm text-slate-400">Control y disponibilidad de materiales en la nube</p>
+                    </div>
+                    <button onclick="openModal('modal-inventario')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i> <span>Nuevo Material</span>
                     </button>
                 </div>
-            </div>
-        </section>
-
-        <!-- 3. INVENTARIO -->
-        <section id="sec-inventario" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Inventario de Materiales</h2>
-                    <p class="text-sm text-slate-400">Control y disponibilidad de materiales en la nube</p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Material</th>
+                                <th class="p-3.5">Presentación</th>
+                                <th class="p-3.5">Costo Total</th>
+                                <th class="p-3.5">Costo Unitario</th>
+                                <th class="p-3.5">Consumido</th>
+                                <th class="p-3.5">Disponible</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-inventario" class="divide-y divide-slate-800"></tbody>
+                    </table>
                 </div>
-                <button onclick="openModal('modal-inventario')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>Nuevo Material</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Material</th>
-                            <th class="p-3.5">Presentación</th>
-                            <th class="p-3.5">Costo</th>
-                            <th class="p-3.5">Consumido</th>
-                            <th class="p-3.5">Disponible</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-inventario" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
+            </section>
 
-        <!-- 4. CATEGORÍAS -->
-        <section id="sec-categorias" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Gestión de Categorías</h2>
-                    <p class="text-sm text-slate-400">Clasificación de productos sincronizada con Supabase</p>
+            <!-- 4. CATEGORÍAS -->
+            <section id="sec-categorias" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Gestión de Categorías</h2>
+                        <p class="text-sm text-slate-400">Clasificación de productos sincronizada con Supabase</p>
+                    </div>
+                    <button onclick="openModal('modal-categoria')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i> <span>Nueva Categoría</span>
+                    </button>
                 </div>
-                <button onclick="openModal('modal-categoria')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>Nueva Categoría</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Nombre</th>
-                            <th class="p-3.5">Descripción</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-categorias" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- 5. CATÁLOGO DE PRODUCTOS -->
-        <section id="sec-catalogo" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Catálogo de Productos</h2>
-                    <p class="text-sm text-slate-400">Costos, tiempos de producción, visibilidad ecommerce y rendimiento $/h</p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Nombre</th>
+                                <th class="p-3.5">Descripción</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-categorias" class="divide-y divide-slate-800"></tbody>
+                    </table>
                 </div>
-                <button onclick="openModal('modal-catalogo')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>Agregar Producto</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Imagen</th>
-                            <th class="p-3.5">Producto</th>
-                            <th class="p-3.5">Categoría</th>
-                            <th class="p-3.5">Colores</th>
-                            <th class="p-3.5">Material & Detalle</th>
-                            <th class="p-3.5">Gramos</th>
-                            <th class="p-3.5">Horas</th>
-                            <th class="p-3.5">Costo Filamento ($)</th>
-                            <th class="p-3.5">Costo Total ($)</th>
-                            <th class="p-3.5">Precio Mín ($)</th>
-                            <th class="p-3.5">Precio PVP ($)</th>
-                            <th class="p-3.5">Ganancia ($)</th>
-                            <th class="p-3.5">Eficiencia ($/h)</th>
-                            <th class="p-3.5 text-center">Ecommerce</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-catalogo" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
+            </section>
 
-        <!-- 6. REGISTRO DE VENTAS -->
-        <section id="sec-ventas" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Registro de Ventas</h2>
-                    <p class="text-sm text-slate-400">Historial de ventas (Descuenta material del inventario de manera automática)</p>
+            <!-- 5. CATÁLOGO DE PRODUCTOS -->
+            <section id="sec-catalogo" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Catálogo de Productos</h2>
+                        <p class="text-sm text-slate-400">Costos, tiempos de producción, visibilidad ecommerce y rendimiento $/h</p>
+                    </div>
+                    <button onclick="openModal('modal-catalogo')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i> <span>Agregar Producto</span>
+                    </button>
                 </div>
-                <button onclick="openModal('modal-venta')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-cart-plus"></i> <span>Registrar Nueva Venta</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Fecha</th>
-                            <th class="p-3.5">Cliente</th>
-                            <th class="p-3.5">Productos</th>
-                            <th class="p-3.5">Total ($)</th>
-                            <th class="p-3.5">Utilidad ($)</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-ventas" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- 7. REGISTRO DE PEDIDOS -->
-        <section id="sec-pedidos" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Registro de Pedidos</h2>
-                    <p class="text-sm text-slate-400">Órdenes pendientes de confirmación (No descuentan stock hasta convertirlas en Ventas)</p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Imagen</th>
+                                <th class="p-3.5">Producto</th>
+                                <th class="p-3.5">Categoría</th>
+                                <th class="p-3.5">Colores</th>
+                                <th class="p-3.5">Material & Detalle</th>
+                                <th class="p-3.5">Gramos</th>
+                                <th class="p-3.5">Horas</th>
+                                <th class="p-3.5">Costo Material ($)</th>
+                                <th class="p-3.5">Costo Total ($)</th>
+                                <th class="p-3.5">Precio Mín ($)</th>
+                                <th class="p-3.5">Precio PVP ($)</th>
+                                <th class="p-3.5">Ganancia ($)</th>
+                                <th class="p-3.5">Eficiencia ($/h)</th>
+                                <th class="p-3.5 text-center">Ecommerce</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-catalogo" class="divide-y divide-slate-800"></tbody>
+                    </table>
                 </div>
-                <button onclick="openModal('modal-pedido')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-truck-ramp-box"></i> <span>Registrar Nuevo Pedido</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Fecha</th>
-                            <th class="p-3.5">Cliente</th>
-                            <th class="p-3.5">Productos</th>
-                            <th class="p-3.5">Total ($)</th>
-                            <th class="p-3.5">Utilidad Est. ($)</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-pedidos" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
+            </section>
 
-        <!-- 8. PIPELINE MUESTRAS -->
-        <section id="sec-muestras" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Pipeline de Muestras</h2>
-                    <p class="text-sm text-slate-400">Seguimiento comercial a prototipos entregados</p>
+            <!-- 6. REGISTRO DE VENTAS -->
+            <section id="sec-ventas" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Registro de Ventas</h2>
+                        <p class="text-sm text-slate-400">Historial de ventas (Descuenta material del inventario de manera automática)</p>
+                    </div>
+                    <button onclick="openModal('modal-venta')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-cart-plus"></i> <span>Registrar Nueva Venta</span>
+                    </button>
                 </div>
-                <button onclick="openModal('modal-muestra')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>Registrar Muestra</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Cliente / Contacto</th>
-                            <th class="p-3.5">Muestra Entregada</th>
-                            <th class="p-3.5">Costo ($)</th>
-                            <th class="p-3.5">Estado Actual</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-muestras" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- 9. PROSPECTOS / IDEAS -->
-        <section id="sec-prospectos" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Prospectos e Ideas</h2>
-                    <p class="text-sm text-slate-400">Piezas en desarrollo pendientes por evaluar</p>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Fecha</th>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Productos</th>
+                                <th class="p-3.5">Total ($)</th>
+                                <th class="p-3.5">Utilidad ($)</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-ventas" class="divide-y divide-slate-800"></tbody>
+                    </table>
                 </div>
-                <button onclick="openModal('modal-prospecto')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>Agregar Idea</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Producto / Idea</th>
-                            <th class="p-3.5">Prioridad</th>
-                            <th class="p-3.5">Estado</th>
-                            <th class="p-3.5">Detalle Estado</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-prospectos" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
+            </section>
 
-        <!-- 10. TAREAS PENDIENTES -->
-        <section id="sec-tareas" class="space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Lista de Tareas</h2>
-                    <p class="text-sm text-slate-400">Pendientes operativos y mantenimiento del taller</p>
+            <!-- 7. REGISTRO DE PEDIDOS -->
+            <section id="sec-pedidos" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Registro de Pedidos</h2>
+                        <p class="text-sm text-slate-400">Órdenes pendientes de confirmación (No descuentan stock hasta convertirlas en Ventas)</p>
+                    </div>
+                    <button onclick="openModal('modal-pedido')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-truck-ramp-box"></i> <span>Registrar Nuevo Pedido</span>
+                    </button>
                 </div>
-                <button onclick="openModal('modal-tarea')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-plus"></i> <span>Nueva Tarea</span>
-                </button>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
-                        <tr>
-                            <th class="p-3.5">ID</th>
-                            <th class="p-3.5">Descripción</th>
-                            <th class="p-3.5">Prioridad</th>
-                            <th class="p-3.5">Estado</th>
-                            <th class="p-3.5">Detalle Estado</th>
-                            <th class="p-3.5 text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-tareas" class="divide-y divide-slate-800"></tbody>
-                </table>
-            </div>
-        </section>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Fecha</th>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Productos</th>
+                                <th class="p-3.5">Total ($)</th>
+                                <th class="p-3.5">Utilidad Est. ($)</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-pedidos" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </section>
 
-    </main>
+            <!-- 8. PIPELINE MUESTRAS -->
+            <section id="sec-muestras" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Pipeline de Muestras</h2>
+                        <p class="text-sm text-slate-400">Seguimiento comercial a prototipos entregados</p>
+                    </div>
+                    <button onclick="openModal('modal-muestra')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i> <span>Registrar Muestra</span>
+                    </button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Cliente / Contacto</th>
+                                <th class="p-3.5">Muestra Entregada</th>
+                                <th class="p-3.5">Costo ($)</th>
+                                <th class="p-3.5">Estado Actual</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-muestras" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 9. PROSPECTOS / IDEAS -->
+            <section id="sec-prospectos" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Prospectos e Ideas</h2>
+                        <p class="text-sm text-slate-400">Piezas en desarrollo pendientes por evaluar</p>
+                    </div>
+                    <button onclick="openModal('modal-prospecto')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i> <span>Agregar Idea</span>
+                    </button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Producto / Idea</th>
+                                <th class="p-3.5">Prioridad</th>
+                                <th class="p-3.5">Estado</th>
+                                <th class="p-3.5">Detalle Estado</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-prospectos" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 10. TAREAS PENDIENTES -->
+            <section id="sec-tareas" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Lista de Tareas</h2>
+                        <p class="text-sm text-slate-400">Pendientes operativos y mantenimiento del taller</p>
+                    </div>
+                    <button onclick="openModal('modal-tarea')" class="bg-sky-600 hover:bg-sky-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i> <span>Nueva Tarea</span>
+                    </button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <tr>
+                                <th class="p-3.5">ID</th>
+                                <th class="p-3.5">Descripción</th>
+                                <th class="p-3.5">Prioridad</th>
+                                <th class="p-3.5">Estado</th>
+                                <th class="p-3.5">Detalle Estado</th>
+                                <th class="p-3.5 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-tareas" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
 
     <!-- ==================== MODALES INTERACTIVOS ==================== -->
     
@@ -569,26 +569,26 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Nombre</label>
-                    <input id="inv-material" type="text" placeholder="Ej. PETG Rojo Fuego" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
+                    <input id="inv-material" type="text" placeholder="Ej. PETG Rojo Fuego o Marcadores" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Presentación</label>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Presentación / Unidad de Consumo</label>
                     <select id="inv-unidad" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
-                        <option value="gr">gr</option>
-                        <option value="und">und</option>
+                        <option value="gr">Gramos (gr)</option>
+                        <option value="und">Unidades (und)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Costo ($/kg o $/unidad)</label>
-                    <input id="inv-costo-kg" type="number" step="0.01" value="21.15" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Costo Total del Paquete/Bobina ($)</label>
+                    <input id="inv-costo-kg" type="number" step="0.01" value="21.15" placeholder="Ej. 1.90 o 21.15" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-300 mb-1">Cantidad Total / Capacidad</label>
-                    <input id="inv-total" type="number" value="1000" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Cantidad Total Adquirida (gr o und)</label>
+                    <input id="inv-total" type="number" step="any" value="1000" placeholder="Ej. 12 para marcadores, 1000 para filamento" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Cantidad Consumida</label>
-                    <input id="inv-consumido" type="number" step="0.1" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
+                    <input id="inv-consumido" type="number" step="any" value="0" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
                 </div>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
@@ -675,12 +675,12 @@
 
                 <div>
                     <label class="block text-xs font-medium text-slate-300 mb-1">Especificación Resumida Materiales</label>
-                    <input id="cat-material-info" type="text" placeholder="Ej. PETG Negro (100g) + PETG Rojo (20g)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
+                    <input id="cat-material-info" type="text" placeholder="Ej. PETG Negro (100gr) + Marcador (1und)" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-sky-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Gramos Totales (g)</label>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Gramos Filamento (g)</label>
                         <input id="cat-gramos" type="number" readonly placeholder="0" class="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-300 outline-none">
                     </div>
                     <div>
@@ -691,7 +691,7 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">Costo Filamento ($)</label>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Costo Materiales ($)</label>
                         <input id="cat-costo-filamento" type="number" step="0.01" readonly placeholder="0.00" class="w-full bg-slate-950/60 border border-slate-800 rounded-lg p-2.5 text-sky-400 font-bold outline-none">
                     </div>
                     <div>
@@ -1260,7 +1260,7 @@
             chartFinancieroInstance = new Chart(ctxFin, {
                 type: 'bar',
                 data: {
-                    labels: ['Ingresos', 'C.Filamento', 'Total Costo', 'Util.Bruta', 'Muestras', 'Util.Neta'],
+                    labels: ['Ingresos', 'C.Materiales', 'Total Costo', 'Util.Bruta', 'Muestras', 'Util.Neta'],
                     datasets: [{
                         data: [ingresos, costoFilamentoTotal, costoVentas, utilidadBruta, costoMuestras, utilidad],
                         backgroundColor: ['#38bdf8', '#fbbf24', '#f43f5e', '#34d399', '#f97316', '#10b981'],
@@ -1357,12 +1357,14 @@
             tbody.innerHTML = appData.inventario.map((item) => {
                 const disp = item.total - item.consumido;
                 const unidad = item.unidad || 'gr';
+                const costoUnit = item.total > 0 ? (item.costoKg / item.total) : 0;
                 return `
                     <tr class="hover:bg-slate-900/50">
                         <td class="p-3.5 font-mono text-slate-400 text-xs">${item.id}</td>
                         <td class="p-3.5 font-semibold text-white">${item.material}</td>
                         <td class="p-3.5 text-slate-300 text-xs">${unidad}</td>
                         <td class="p-3.5 text-sky-400 font-medium">$${item.costoKg.toFixed(2)}</td>
+                        <td class="p-3.5 text-slate-300 font-mono text-xs">$${costoUnit.toFixed(4)}/${unidad}</td>
                         <td class="p-3.5 text-slate-300 font-medium">${item.consumido.toFixed(1)}</td>
                         <td class="p-3.5 text-emerald-400 font-bold">${disp.toFixed(1)}</td>
                         <td class="p-3.5 text-right space-x-1">
@@ -1382,7 +1384,8 @@
             const parts = prod.materialInfo.split(' + ');
 
             for (const part of parts) {
-                const match = part.match(/(.+?)\s*\((\d+(?:\.\d+)?)g\)/);
+                // Compatible con formatos (100gr), (12und), (100g) o (50)
+                const match = part.match(/(.+?)\s*\((\d+(?:\.\d+)?)\s*(?:gr|g|und|[a-zA-Z]*)\)/i);
                 if (match) {
                     const matName = match[1].trim();
                     const cant = parseFloat(match[2]) * multiplier;
@@ -1406,6 +1409,7 @@
             const costo_kg = parseFloat(document.getElementById('inv-costo-kg').value) || 0;
 
             if (!material) return alert('Ingresa el nombre del material');
+            if (total <= 0) return alert('La cantidad total debe ser mayor a 0');
 
             const { error } = await supabaseClient.from('inventario').upsert({ id, material, unidad, total, consumido, costo_kg });
             if (!error) {
@@ -1531,15 +1535,19 @@
             agregarFilaMaterialCatalogo();
         }
 
-        function agregarFilaMaterialCatalogo(selectedMatId = null, selectedGramos = 50) {
+        function agregarFilaMaterialCatalogo(selectedMatId = null, selectedCant = 50) {
             const container = document.getElementById('cat-materiales-container');
             const rowId = 'mat-row-' + Date.now() + Math.random();
-            let options = appData.inventario.map(item => `<option value="${item.id}" ${selectedMatId === item.id ? 'selected' : ''}>${item.material} ($${item.costoKg.toFixed(2)})</option>`).join('');
+            let options = appData.inventario.map(item => {
+                const costoUnit = item.total > 0 ? (item.costoKg / item.total) : 0;
+                const und = item.unidad || 'gr';
+                return `<option value="${item.id}" ${selectedMatId === item.id ? 'selected' : ''}>${item.material} ($${costoUnit.toFixed(4)}/${und})</option>`;
+            }).join('');
             
             container.insertAdjacentHTML('beforeend', `
                 <div id="${rowId}" class="flex items-center gap-2 cat-material-row">
                     <select class="cat-mat-select flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white" onchange="calcularCostosCatalogoAuto()">${options}</select>
-                    <input type="number" class="cat-mat-gramos w-24 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white" value="${selectedGramos}" oninput="calcularCostosCatalogoAuto()">
+                    <input type="number" step="any" class="cat-mat-gramos w-24 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white" value="${selectedCant}" oninput="calcularCostosCatalogoAuto()">
                     <button type="button" onclick="eliminarFilaMaterialCatalogo('${rowId}')" class="text-slate-500 hover:text-red-400 p-1.5"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             `);
@@ -1558,9 +1566,13 @@
                 const cant = parseFloat(row.querySelector('.cat-mat-gramos').value) || 0;
                 const mat = appData.inventario.find(i => String(i.id) === String(sel));
                 if (mat) {
-                    totalCostoFilamento += cant * (mat.costoKg / 1000);
-                    totalGramos += cant;
-                    if(cant>0) infoParts.push(`${mat.material} (${cant}g)`);
+                    const costoUnit = mat.total > 0 ? (mat.costoKg / mat.total) : 0;
+                    totalCostoFilamento += cant * costoUnit;
+                    const unidad = mat.unidad || 'gr';
+                    if (unidad === 'gr') {
+                        totalGramos += cant;
+                    }
+                    if(cant > 0) infoParts.push(`${mat.material} (${cant}${unidad})`);
                 }
             });
 
@@ -1635,8 +1647,8 @@
             if (item.materialInfo && item.materialInfo !== 'Configurado') {
                 const parts = item.materialInfo.split(' + ');
                 parts.forEach(part => {
-                    // Extrae el nombre del material y los gramos (ej. "PETG (100g)")
-                    const match = part.match(/(.+?)\s*\((\d+(?:\.\d+)?)g\)/);
+                    // Extrae el nombre del material y la cantidad (ej. "PETG (100gr)", "Marcadores (1und)")
+                    const match = part.match(/(.+?)\s*\((\d+(?:\.\d+)?)\s*(?:gr|g|und|[a-zA-Z]*)\)/i);
                     if (match) {
                         const matName = match[1].trim();
                         const cant = parseFloat(match[2]);
@@ -1649,15 +1661,11 @@
                 });
             }
             
-            // Si por alguna razón la celda estaba vacía o con un formato incorrecto, ponemos una fila vacía
             if (!parsedMaterials) {
                 agregarFilaMaterialCatalogo();
             }
 
-            // MUY IMPORTANTE: Se restaura el precio original (el PVP personalizado guardado en BD) 
-            // después de que la reconstrucción de los materiales dispare el cálculo automático
             document.getElementById('cat-precio').value = item.precio;
-
             openModal('modal-catalogo');
         }
 
@@ -1665,10 +1673,8 @@
             if (confirm('¿Eliminar producto?')) {
                const item = appData.catalogo.find(c => String(c.id) === String(id));
                 
-                // 1. Borrar imagen asociada en el Bucket (si no es NP.webp)
                 if (item && item.imagenUrl) {
                     try {
-                        // Extraemos la ruta exacta después del nombre del bucket
                         const urlParts = item.imagenUrl.split('/productos-img/');
                         if (urlParts.length > 1) {
                             const pathInBucket = decodeURIComponent(urlParts[1].split('?')[0]);
@@ -1677,8 +1683,6 @@
                                 const { data, error } = await supabaseClient.storage.from('productos-img').remove([pathInBucket]);
                                 if (error) {
                                     console.error("Supabase Storage Error al borrar:", error.message);
-                                } else {
-                                    console.log("Imagen borrada del bucket exitosamente:", pathInBucket);
                                 }
                             }
                         }
@@ -1687,7 +1691,6 @@
                     }
                 }
                 
-                // 2. Borrar registro en la Base de Datos
                 const { error: dbError } = await supabaseClient.from('catalogo').delete().eq('id', id);
                 
                 if (!dbError) {
@@ -1706,15 +1709,19 @@
             else calcularCotizacion();
         }
 
-        function agregarFilaMaterialCotizador(selectedMatId = null, selectedGramos = 60) {
+        function agregarFilaMaterialCotizador(selectedMatId = null, selectedCant = 60) {
             const container = document.getElementById('calc-materiales-container');
             const rowId = 'calc-mat-row-' + Date.now() + Math.random();
-            let options = appData.inventario.map(item => `<option value="${item.id}" ${selectedMatId === item.id ? 'selected' : ''}>${item.material} ($${item.costoKg.toFixed(2)}/kg)</option>`).join('');
+            let options = appData.inventario.map(item => {
+                const costoUnit = item.total > 0 ? (item.costoKg / item.total) : 0;
+                const und = item.unidad || 'gr';
+                return `<option value="${item.id}" ${selectedMatId === item.id ? 'selected' : ''}>${item.material} ($${costoUnit.toFixed(4)}/${und})</option>`;
+            }).join('');
 
             container.insertAdjacentHTML('beforeend', `
                 <div id="${rowId}" class="flex items-center gap-2 calc-material-row">
                     <select class="calc-mat-select flex-1 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white" onchange="calcularCotizacion()">${options}</select>
-                    <input type="number" class="calc-mat-gramos w-16 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white" value="${selectedGramos}" oninput="calcularCotizacion()">
+                    <input type="number" step="any" class="calc-mat-gramos w-16 bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-white" value="${selectedCant}" oninput="calcularCotizacion()">
                     <button type="button" onclick="eliminarFilaMaterialCotizador('${rowId}')" class="text-slate-500 hover:text-red-400 p-1.5"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             `);
@@ -1732,7 +1739,12 @@
                 const sel = r.querySelector('select').value;
                 const cant = parseFloat(r.querySelector('input').value) || 0;
                 const mat = appData.inventario.find(i => String(i.id) === String(sel));
-                if (mat) { totalMat += cant * (mat.costoKg / 1000); if (cant > 0) infoParts.push(`${mat.material} (${cant}g)`); }
+                if (mat) { 
+                    const costoUnit = mat.total > 0 ? (mat.costoKg / mat.total) : 0;
+                    totalMat += cant * costoUnit; 
+                    const und = mat.unidad || 'gr';
+                    if (cant > 0) infoParts.push(`${mat.material} (${cant}${und})`); 
+                }
             });
             
             document.getElementById('calc-material-info').value = infoParts.join(' + ');
@@ -1760,7 +1772,14 @@
             const materialInfo = document.getElementById('calc-material-info').value || 'Cotización';
             
             let totalGramos = 0;
-            document.querySelectorAll('.calc-material-row').forEach(r => { totalGramos += parseFloat(r.querySelector('input').value) || 0; });
+            document.querySelectorAll('.calc-material-row').forEach(r => {
+                const sel = r.querySelector('select').value;
+                const cant = parseFloat(r.querySelector('input').value) || 0;
+                const mat = appData.inventario.find(i => String(i.id) === String(sel));
+                if (mat && (mat.unidad === 'gr' || !mat.unidad)) {
+                    totalGramos += cant;
+                }
+            });
 
             const payload = {
                 id: `P-${Date.now()}`, producto: nombre, categoria: appData.categorias.length > 0 ? appData.categorias[0].nombre : 'General',
@@ -1867,7 +1886,6 @@
                 for (const item of items) await procesarConsumoMaterial(item.producto, item.cant, false);
             }
 
-            // CALCULAR FECHA LOCAL EXACTA (CARACAS)
             const fechaHoy = new Date();
             const year = fechaHoy.getFullYear();
             const month = String(fechaHoy.getMonth() + 1).padStart(2, '0');
@@ -1894,7 +1912,6 @@
             document.getElementById('modal-ven-title').innerHTML = '<i class="fa-solid fa-pen-to-square text-emerald-400 mr-2"></i> Editar Venta';
             document.getElementById('ven-cliente').value = v.cliente;
 
-            // Infiere automáticamente si traía el recargo de Edición 
             let sumItems = (v.items || []).reduce((acc, it) => acc + (it.cant * (it.precioUnit || it.precio || 0)), 0);
             document.getElementById('ven-edicion').checked = (v.total >= sumItems + 9.99);
 
@@ -1902,7 +1919,7 @@
             if (v.items && v.items.length > 0) v.items.forEach(it => agregarFilaProductoVenta(it.id, it.cant, it.precioUnit));
             else agregarFilaProductoVenta();
             
-            calcularTotalVenta(); // recalcula el total con el checkbox
+            calcularTotalVenta();
             openModal('modal-venta');
         }
 
@@ -2003,7 +2020,6 @@
                 }
             });
 
-            // CALCULAR FECHA LOCAL EXACTA (CARACAS)
             const fechaHoy = new Date();
             const year = fechaHoy.getFullYear();
             const month = String(fechaHoy.getMonth() + 1).padStart(2, '0');
@@ -2052,7 +2068,6 @@
             if (!confirm(`¿Procesar el pedido de "${pedido.cliente}" a VENTA y descontar material?`)) return;
 
             try {
-                // CALCULAR FECHA LOCAL EXACTA (CARACAS)
                 const fechaHoy = new Date();
                 const year = fechaHoy.getFullYear();
                 const month = String(fechaHoy.getMonth() + 1).padStart(2, '0');
@@ -2127,7 +2142,6 @@
                 estado: document.getElementById('mue-estado').value 
             };
 
-            // Descontar material si es una nueva muestra promocional que se acaba de imprimir
             if (!isEdit) {
                 await procesarConsumoMaterial(payload.producto, 1, false);
             }
@@ -2150,7 +2164,6 @@
             if (confirm('¿Eliminar muestra y restaurar el material al inventario?')) { 
                 const item = appData.muestras.find(m => String(m.id) === String(id));
                 if (item) {
-                    // Revertimos el consumo de ese producto en el inventario (1 unidad)
                     await procesarConsumoMaterial(item.producto, 1, true);
                 }
                 const { error } = await supabaseClient.from('muestras').delete().eq('id', id); 
@@ -2200,7 +2213,6 @@
             openModal('modal-prospecto');
         }
         async function eliminarProspecto(id) { if (confirm('¿Eliminar idea?')) { await supabaseClient.from('prospectos').delete().eq('id', id); await fetchAllData(); } }
-
 
         function renderTareas() {
             const tbody = document.getElementById('tabla-tareas');
